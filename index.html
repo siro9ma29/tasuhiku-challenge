@@ -324,9 +324,9 @@
 /* ================= レベル定義 ================= */
 const LEVELS = [
   {id:1, name:"5の ごうせい", ex:"れい：2と □で 5", color:"var(--l1)", type:"comp", total:5,
-   pool(){ const a=[]; for(let x=1;x<=4;x++) a.push({a:x}); return a; }},
+   pool(){ const a=[]; for(let x=0;x<=5;x++) a.push({a:x}); return a; }},
   {id:2, name:"10の ごうせい", ex:"れい：1と □で 10", color:"var(--l2)", type:"comp", total:10,
-   pool(){ const a=[]; for(let x=1;x<=9;x++) a.push({a:x}); return a; }},
+   pool(){ const a=[]; for(let x=0;x<=10;x++) a.push({a:x}); return a; }},
   {id:3, name:"くりあがりの ない たしざん", ex:"こたえが 10まで　れい：3＋4", color:"var(--l3)", type:"add",
    pool(){ const a=[]; for(let x=1;x<=9;x++) for(let y=1;x+y<=10;y++) a.push({a:x,b:y}); return a; }},
   {id:4, name:"くりさがりの ない ひきざん", ex:"10までの かず　れい：8－3", color:"var(--l4)", type:"sub",
