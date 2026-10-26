@@ -235,6 +235,20 @@
   .dmg.crit{color:#e53935;font-size:40px}
   .dmg.show{animation:dmg .9s}
   @keyframes dmg{0%{opacity:0;transform:translateY(14px) scale(.6)}20%{opacity:1;transform:translateY(0) scale(1.15)}100%{opacity:0;transform:translateY(-26px)}}
+  /* こうげき ゲージ */
+  .atk{display:flex;align-items:center;gap:8px;margin:2px 0 4px}
+  .atk-l{font-size:13px;font-weight:bold;color:var(--sub);white-space:nowrap}
+  .atkbar{flex:1;height:12px;background:#eee;border-radius:999px;overflow:hidden;border:2px solid #ddd}
+  .atkbar i{display:block;height:100%;width:0;background:#ffb74d;transition:width .1s linear}
+  .atk.warn .atkbar i{background:var(--red);animation:blink .35s infinite alternate}
+  .atk.warn .atk-l{color:var(--red)}
+  @keyframes blink{from{opacity:1}to{opacity:.35}}
+  .warnmsg{position:absolute;left:max(2px,calc(50% - 180px));top:10px;font-size:clamp(20px,5.6vw,26px);font-weight:bold;color:var(--red);white-space:nowrap;
+    text-shadow:0 2px 0 #fff,0 0 6px #fff;opacity:0;pointer-events:none;transform:rotate(-8deg)}
+  .bp-mid.warn .warnmsg{opacity:1;animation:wob .5s infinite alternate}
+  @keyframes wob{from{transform:rotate(-8deg) scale(1)}to{transform:rotate(-4deg) scale(1.12)}}
+  .bp-mid.warn .monster{animation:charge .25s infinite alternate;filter:drop-shadow(0 0 10px #ff5252)}
+  @keyframes charge{from{transform:translateX(-3px) scale(1.04)}to{transform:translateX(3px) scale(1.08)}}
   .hearts{text-align:center;font-size:28px;letter-spacing:6px;color:var(--red);line-height:1.1}
   .hearts .lost{color:#ddd}
   .hearts .just{display:inline-block;animation:pop .5s}
@@ -338,7 +352,8 @@
   </div>
   <div class="bosspanel" id="bossPanel">
     <div class="bp-top"><span class="bp-name" id="bName"></span><div class="hp"><i id="bHp"></i></div><span class="hpn" id="bHpN"></span></div>
-    <div class="bp-mid"><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div></div>
+    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div></div>
+    <div class="atk" id="bAtkRow"><span class="atk-l">こうげき</span><div class="atkbar"><i id="bAtk"></i></div></div>
     <div class="hearts" id="bHearts"></div>
   </div>
   <div class="qbox" id="qbox">
@@ -698,7 +713,7 @@ function openStart(i,s){
   $("ovTitle").textContent = boss ? `ボス：${I.boss}` : `ステージ ${i+1}-${s+1}`;
   $("ovSub").textContent = `${I.name}　｜　` + (boss ? (i===ISLANDS.length-1 ? "ぜんぶの もんだいが まざるよ" : "これまでの もんだいが まざるよ") : LEVELS[i].name);
   $("ovDesc").innerHTML = (boss
-      ? `ハートは 3つ。まちがえると へるよ。<br>はやく こたえると だいダメージ！`
+      ? `ハートは 3つ。まちがえると へるよ。<br>じかんが たつと ボスが こうげきしてくる！<br>はやく こたえると だいダメージ！`
       : `${STAGE_N}もん。${STAGE_PASS}もん いじょう せいかいで<br>コマが 1マス すすむ！`)
     + (k<A.pos ? `<br><span class="done">（クリアずみ。もういちど あそべるよ）</span>` : "");
   $("ovGo").textContent = boss ? "たたかう！" : "スタート！";
@@ -900,11 +915,12 @@ function start(mode,opt){
   }
   show("play"); nextQ();
   clearInterval(timerId);
-  timerId=setInterval(()=>{ if(G) $("pTime").textContent=fmt(performance.now()-G.t0); },100);
+  timerId=setInterval(()=>{ if(!G) return; $("pTime").textContent=fmt(performance.now()-G.t0); if(G.mode==="boss") bossTick(); },100);
 }
 
 function nextQ(){
   G.input=""; $("frame").innerHTML=""; G.qStart=performance.now(); G.tries=0;
+  if(G.mode==="boss"){ G.boss.atk0=G.qStart; drawAtk(0); }
   if(G.pr) setupSoro(G.qs[G.i]);
   $("hintBtn").style.display = G.qs[G.i].L.type==="comp" ? "" : "none";
   drawQ();
@@ -992,6 +1008,40 @@ function bossHit(ok,el){
   }
   drawBoss();
 }
+// じかんが たつと ボスが こうげき（ATK_MS で ゲージ まんたん）
+const ATK_MS=8000, WARN_MS=2000;
+function atkLimit(){ return ATK_MS*(G.opt.i>=4 ? 1.4 : 1); }
+function drawAtk(r){
+  $("bAtk").style.width=(Math.min(1,r)*100)+"%";
+  const warn = r>=1-WARN_MS/atkLimit() && r<1;
+  $("bAtkRow").classList.toggle("warn",warn);
+  $("bMid").classList.toggle("warn",warn);
+}
+function bossTick(){
+  const b=G.boss;
+  if(G.lock || b.over || b.atk0==null) return;
+  const r=(performance.now()-b.atk0)/atkLimit();
+  drawAtk(r);
+  if(r>=1) bossAttack();
+}
+function bossAttack(){
+  const b=G.boss, mon=$("bMon"), g=G;
+  drawAtk(0);
+  b.hearts--; b.justLost=true;
+  mon.className="monster"; void mon.offsetWidth; mon.className="monster atk";
+  const p=$("play"); p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
+  beep(false);
+  drawBoss();
+  if(b.hearts<=0){ b.over="lose"; G.lock=true; setTimeout(()=>{ if(G===g) finish(); },1000); return; }
+  b.atk0=performance.now();   // おなじ もんだいの まま、ゲージは 0から
+}
+// とめて いた じかん（かくにん ダイアログ・べつの がめん）は ゲージに いれない
+function pauseShift(ms){ if(!G) return; if(G.boss && G.boss.atk0!=null) G.boss.atk0+=ms; G.qStart+=ms; }
+let hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden) hiddenAt=performance.now();
+  else if(hiddenAt){ pauseShift(performance.now()-hiddenAt); hiddenAt=0; }
+});
 function drawBoss(){
   const b=G.boss, r=b.hp/b.max;
   $("bHp").style.width=(r*100)+"%";
@@ -1113,7 +1163,9 @@ document.addEventListener("keydown",e=>{
 });
 $("hintBtn").addEventListener("click",()=>{ if(!G||G.lock||$("frame").innerHTML) return; G.hints++; drawFrame(); });
 $("quitBtn").addEventListener("click",()=>{
-  if(confirm("とちゅうで やめますか？（きろくは のこりません）")){
+  const c0=performance.now();
+  if(!confirm("とちゅうで やめますか？（きろくは のこりません）")){ pauseShift(performance.now()-c0); return; }
+  {
     clearInterval(timerId); const adv=G.origin==="adv"; G=null; adv ? openMap() : goHome();
   }
 });
