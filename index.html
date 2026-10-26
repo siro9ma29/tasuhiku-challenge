@@ -48,6 +48,46 @@
   .foot{margin-top:auto;padding-top:18px;text-align:center}
   .foot button{background:none;color:var(--sub);font-size:13px;text-decoration:underline;margin:0 8px}
 
+  /* モード えらび */
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:2px 0 14px}
+  .mode{position:relative;background:#fff;border:3px solid var(--line);border-radius:18px;padding:10px 4px 8px;
+    text-align:center;color:var(--sub);box-shadow:0 4px 0 var(--line)}
+  .mode:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+  .mode .st{display:inline-block;font-size:13px;font-weight:bold;border-radius:999px;padding:1px 10px;background:#f4efe6}
+  .mode .mt{display:block;font-size:19px;font-weight:bold;margin-top:4px;color:var(--ink);white-space:nowrap}
+  .mode .ms{display:block;font-size:13px;margin-top:2px}
+  .mode.on{border-color:var(--m);background:color-mix(in srgb,var(--m) 9%,#fff);box-shadow:0 4px 0 var(--m)}
+  .mode.on .st{background:var(--m);color:#fff}
+  .mode.on .mt{color:var(--m)}
+  .mode:not(:last-child)::after{content:"▶";position:absolute;right:-11px;top:50%;transform:translateY(-50%);
+    font-size:11px;color:#d6cbb5;z-index:1}
+  .mpanel{display:none} .mpanel.on{display:block}
+  .mlead{text-align:center;color:var(--sub);font-size:15px;margin:0 0 12px;word-break:keep-all;overflow-wrap:anywhere}
+  .lv .best.soro{background:#fff3e6;color:#9a5a1e}
+  @media (max-width:420px){ .mode .mt{font-size:16px} .mode .ms{font-size:11px} }
+
+  /* そろばん */
+  .soroban{display:none;max-width:600px;width:100%;margin:0 auto 12px}
+  #play.prmode .soroban{display:block}
+  .stool{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 6px;font-size:14px;color:var(--sub)}
+  .stool button{background:#fff;border:2px solid var(--line);border-radius:12px;padding:5px 12px;font-size:15px;color:var(--sub);font-weight:bold;white-space:nowrap}
+  .sframe{background:linear-gradient(#d49b60,#b9783f);border-radius:16px;padding:8px 10px;box-shadow:0 4px 0 #8d5a2b;touch-action:none}
+  .rod{position:relative;aspect-ratio:13/1.12;background:#fffaf0;border-radius:8px}
+  .rod+.rod{margin-top:6px}
+  .rod::before{content:"";position:absolute;left:1.5%;right:1.5%;top:50%;height:4px;margin-top:-2px;background:#b3ab9e;border-radius:2px}
+  .bead{position:absolute;top:5%;height:90%;width:calc(100% / 13 - 2px);padding:0;border-radius:50%;
+    left:calc(var(--x) * 100% / 13 + 1px);transition:left .16s ease-out;
+    background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.8) 0 14%,transparent 42%),var(--bc);
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.3)}
+  .bead.c1{--bc:#ef6c4a} .bead.c2{--bc:#ffd54f}
+  #play.prmode .time{display:none}
+  #play.prmode .hintbtn{display:none!important}
+  #play.prmode .qbox{min-height:116px;padding:12px 10px;margin:4px 0 10px}
+  #play.prmode .q{font-size:clamp(40px,9vw,68px)}
+  #play.prmode .mark .sym{font-size:90px}
+  #play.prmode .pad button{padding:10px 0;font-size:30px}
+  .mark .cor.retry{color:var(--blue);font-size:22px}
+
   /* マップ */
   .maphead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .maphead h2{margin:0;font-size:24px;flex:1;text-align:center;padding-right:84px}
@@ -229,18 +269,31 @@
 <!-- ===== ホーム ===== -->
 <section id="home" class="screen active">
   <h1><span>たす</span><b>ひく</b>チャレンジ</h1>
-  <button class="advbtn" id="advBtn">
-    <div class="ab-art" id="abArt"></div>
-    <div><div class="ab-t">ぼうけんモード</div><div class="ab-s" id="abSub"></div></div>
-    <span class="ab-go">▶</span>
-  </button>
-  <h2 class="sec">れんしゅうモード</h2>
   <button class="badgebtn" id="badgeBtn"></button>
-  <div class="count-select" id="countSel">
-    <button data-n="10" class="on">10もん</button>
-    <button data-n="20">20もん</button>
+  <div class="modes" id="modes">
+    <button class="mode" data-m="pr" style="--m:var(--green)"><span class="st">1</span><span class="mt">れんしゅう</span><span class="ms">5もん・そろばん</span></button>
+    <button class="mode" data-m="ch" style="--m:var(--blue)"><span class="st">2</span><span class="mt">チャレンジ</span><span class="ms">10・20もん</span></button>
+    <button class="mode" data-m="adv" style="--m:#8a5cf0"><span class="st">3</span><span class="mt">ぼうけん</span><span class="ms">マップで すすむ</span></button>
   </div>
-  <div class="levels" id="levels"></div>
+  <div class="mpanel" id="mp-pr">
+    <p class="mlead">そろばんの たまを うごかしながら、ゆっくり かんがえよう。</p>
+    <div class="levels" id="prLevels"></div>
+  </div>
+  <div class="mpanel" id="mp-ch">
+    <div class="count-select" id="countSel">
+      <button data-n="10" class="on">10もん</button>
+      <button data-n="20">20もん</button>
+    </div>
+    <div class="levels" id="levels"></div>
+  </div>
+  <div class="mpanel" id="mp-adv">
+    <p class="mlead">20もんで 1マス すすむ。ボスを たおして つぎの しまへ！</p>
+    <button class="advbtn" id="advBtn">
+      <div class="ab-art" id="abArt"></div>
+      <div><div class="ab-t">ぼうけんモード</div><div class="ab-s" id="abSub"></div></div>
+      <span class="ab-go">▶</span>
+    </button>
+  </div>
   <div class="foot"><button id="resetBtn">きろくを ぜんぶ けす（先生用）</button></div>
 </section>
 
@@ -273,6 +326,10 @@
     <button class="hintbtn" id="hintBtn">ヒント</button>
     <div class="mark" id="mark"><div class="sym" id="markSym"></div><div class="cor" id="markCor"></div></div>
   </div>
+  <div class="soroban">
+    <div class="stool"><span>たまを タッチ・スライドして かんがえよう</span><button id="soroReset">たまを もどす</button></div>
+    <div class="sframe" id="sframe"></div>
+  </div>
   <div class="pad" id="pad">
     <button>7</button><button>8</button><button>9</button>
     <button>4</button><button>5</button><button>6</button>
@@ -304,6 +361,7 @@
   </div>
   <div class="btns">
     <button class="rev" id="revBtn">まちがえた もんだいだけ もういちど</button>
+    <button id="nextBtn">チャレンジモードで やってみる</button>
     <button id="againBtn">もういちど</button>
     <button id="homeBtn">レベルを えらぶ</button>
   </div>
@@ -365,7 +423,7 @@ const TOTAL=ISLANDS.length*STEPS;
 const idx=(i,s)=>i*STEPS+s;
 
 /* ================= ほぞん（localStorage） ================= */
-const KEY="tasuhiku-challenge-v1", BKEY="tasuhiku-badges-v1", AKEY="tasuhiku-adventure-v1";
+const KEY="tasuhiku-challenge-v1", BKEY="tasuhiku-badges-v1", AKEY="tasuhiku-adventure-v1", MKEY="tasuhiku-homemode-v1";
 function lsGet(k,d){ try{ const v=JSON.parse(localStorage.getItem(k)); return v||d; }catch(e){ return d; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 const loadRec=()=>lsGet(KEY,{}), saveRec=r=>lsSet(KEY,r);
@@ -525,6 +583,13 @@ function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.t
 const fmt=t=>(t/1000).toFixed(1);
 
 let count=10;
+const PR_N=5;   // れんしゅうモードの もんだい数
+let homeMode = (()=>{ try{ return localStorage.getItem(MKEY)||"pr"; }catch(e){ return "pr"; } })();
+function setHomeMode(m){ homeMode=m; try{ localStorage.setItem(MKEY,m); }catch(e){} }
+$("modes").addEventListener("click",e=>{
+  const b=e.target.closest(".mode"); if(!b) return;
+  setHomeMode(b.dataset.m); renderHome();
+});
 $("countSel").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
   count=+b.dataset.n;
@@ -537,6 +602,11 @@ function renderHome(){
   $("abArt").innerHTML=heroSVG();
   $("abSub").textContent = A.pos>=TOTAL ? "ぜんぶの しまを クリア！" :
     `いま：${Math.floor(A.pos/STEPS)+1}つめの しま（${ISLANDS[Math.floor(A.pos/STEPS)].name}）`;
+  document.querySelectorAll(".mode").forEach(b=>b.classList.toggle("on",b.dataset.m===homeMode));
+  document.querySelectorAll(".mpanel").forEach(p=>p.classList.toggle("on",p.id==="mp-"+homeMode));
+  $("prLevels").innerHTML = LEVELS.map(L=>`<button class="lv" style="--c:${L.color}" data-id="${L.id}">
+      <div class="no">レベル ${L.id}</div><div class="nm">${L.name}</div>
+      <div class="ex">${L.ex}</div><div class="best soro">${PR_N}もん　そろばん ${L.id>=5?20:10}だま</div></button>`).join("");
   $("badgeBtn").textContent=`バッヂを みる（${Object.keys(loadB().got).length} / ${ALLB.length}）`;
   $("levels").innerHTML = LEVELS.map(L=>{
     const r=rec[`${L.id}-${count}`];
@@ -643,19 +713,60 @@ function bossQuestions(i,n){
   return out;
 }
 
+/* ================= そろばん ================= */
+// 1れつ 10だま。ひだりに よせた たまが かぞえる たま。
+const SLOTS=13;
+let soro=[0];
+function renderSoro(rows){
+  soro=Array(rows).fill(0);
+  let h="";
+  for(let r=0;r<rows;r++){
+    h+=`<div class="rod" data-r="${r}">`;
+    for(let k=0;k<10;k++) h+=`<button class="bead ${k<5?'c1':'c2'}" data-k="${k}" tabindex="-1" aria-label="たま"></button>`;
+    h+=`</div>`;
+  }
+  $("sframe").innerHTML=h; drawSoro();
+}
+function drawSoro(){
+  $("sframe").querySelectorAll(".rod").forEach((rod,r)=>{
+    const n=soro[r];
+    rod.querySelectorAll(".bead").forEach((b,k)=>b.style.setProperty("--x", k<n ? k : SLOTS-10+k));
+  });
+}
+let sDrag=null;
+$("sframe").addEventListener("pointerdown",e=>{
+  const b=e.target.closest(".bead"); if(!b) return;
+  e.preventDefault(); sDrag={b,x:e.clientX};
+});
+window.addEventListener("pointercancel",()=>{ sDrag=null; });
+window.addEventListener("pointerup",e=>{
+  if(!sDrag) return;
+  const {b,x}=sDrag; sDrag=null;
+  const r=+b.parentNode.dataset.r, k=+b.dataset.k, n=soro[r], dx=e.clientX-x;
+  let nn;
+  if(dx<-12) nn=Math.max(n,k+1);        // ひだりへ スライド
+  else if(dx>12) nn=Math.min(n,k);      // みぎへ スライド
+  else nn = k<n ? k : k+1;              // タッチ
+  if(nn!==n){ soro[r]=nn; drawSoro(); tone([nn>n?700:520],"sine",.05,.03); }
+});
+$("soroReset").addEventListener("click",()=>{ soro=soro.map(()=>0); drawSoro(); });
+
 /* ================= ゲーム ================= */
 let G=null, timerId=null;
 
-// mode: free（れんしゅう）/ review（ふくしゅう）/ stage / boss
+// mode: practice（れんしゅう）/ free（チャレンジ）/ review（ふくしゅう）/ stage / boss
 function start(mode,opt){
   let qs, L=opt.L||null, tag, col;
-  if(mode==="free"){ qs=makeQuestions(L,count); tag=`レベル${L.id}`; col=L.color; }
+  if(mode==="practice"){ qs=makeQuestions(L,PR_N); tag=`れんしゅう Lv${L.id}`; col=L.color; }
+  else if(mode==="free"){ qs=makeQuestions(L,count); tag=`レベル${L.id}`; col=L.color; }
   else if(mode==="review"){ qs=shuffle(opt.list.slice()); tag="ふくしゅう"; col=opt.color||"var(--blue)"; }
   else if(mode==="stage"){ L=LEVELS[opt.i]; qs=makeQuestions(L,STAGE_N); tag=`ステージ ${opt.i+1}-${opt.s+1}`; col=ISLANDS[opt.i].color; }
   else { qs=bossQuestions(opt.i,40); tag="ボス せん"; col=ISLANDS[opt.i].color; }
   G={mode,opt,L,qs,i:0,input:"",wrong:[],correct:0,hints:0,lock:false,t0:performance.now(),color:col,
      origin: opt.origin || ((mode==="stage"||mode==="boss") ? "adv" : "home")};
+  G.pr = mode==="practice" || !!opt.pr;   // そろばん つき・やりなおし あり
   $("play").classList.toggle("bossmode",mode==="boss");
+  $("play").classList.toggle("prmode",G.pr);
   $("pTag").textContent=tag; $("pTag").style.background=col; $("pBar").style.background=col;
   if(mode==="boss"){
     const I=ISLANDS[opt.i], max = opt.i===ISLANDS.length-1 ? 150 : 100;
@@ -671,7 +782,8 @@ function start(mode,opt){
 }
 
 function nextQ(){
-  G.input=""; $("frame").innerHTML=""; G.qStart=performance.now();
+  G.input=""; $("frame").innerHTML=""; G.qStart=performance.now(); G.tries=0;
+  if(G.pr) renderSoro(G.qs[G.i].L.id>=5 ? 2 : 1);
   $("hintBtn").style.display = G.qs[G.i].L.type==="comp" ? "" : "none";
   drawQ();
 }
@@ -704,7 +816,16 @@ function press(k){
 function judge(){
   G.lock=true;
   const q=G.qs[G.i], ans=answerOf(q), v=+G.input, ok=v===ans, el=performance.now()-G.qStart;
-  const m=$("mark");
+  const m=$("mark"), g0=G;
+  $("markCor").classList.remove("retry");
+  if(!ok && G.pr && G.tries===0){   // れんしゅう：1かいめの まちがいは もういちど
+    G.tries=1;
+    m.className="mark show ng"; $("markSym").textContent="×";
+    $("markCor").textContent="もういちど かんがえよう"; $("markCor").classList.add("retry"); $("markCor").style.display="";
+    beep(false); $("qbox").classList.remove("shake"); void $("qbox").offsetWidth; $("qbox").classList.add("shake");
+    setTimeout(()=>{ if(G!==g0) return; $("mark").className="mark"; G.input=""; drawQ(); G.lock=false; },1000);
+    return;
+  }
   m.className="mark show "+(ok?"ok":"ng");
   $("markSym").textContent= ok ? "○" : "×";
   $("markCor").textContent= ok ? "" : `こたえは ${ans}`;
@@ -766,7 +887,17 @@ function finish(){
   let newB=[], banner="", title="", big="", tm=`タイム　${fmt(t)}びょう`, msg="", note="", art="", artCls="";
   let againLabel="もういちど", showAgain=true, primary="again";
 
-  if(mode==="free" || mode==="review"){
+  if(mode==="practice"){
+    const n=G.qs.length;
+    title=`れんしゅう　レベル${L.id}　${L.name}`;
+    big=`${G.correct}<small> / ${n}もん</small>`; tm="";
+    msg = G.correct===n ? "ぜんぶ できたね！ チャレンジモードにも ちょうせんしよう！"
+        : G.correct>=n-1 ? "よく できました！" : "もう いちど れんしゅう してみよう！";
+    if(G.correct===n){ fanfare(); primary="next"; }
+    newB=awardBadges([],G.correct);
+    note="れんしゅうモードの けっかは じこベストに のこりません。";
+  }
+  else if(mode==="free" || mode==="review"){
     const n=G.qs.length, rate=G.correct/n;
     title = mode==="free" ? `レベル${L.id}　${L.name}` : "ふくしゅう";
     big=`${G.correct}<small> / ${n}もん</small>`;
@@ -778,7 +909,7 @@ function finish(){
         if(!first) banner="★ じこベスト こうしん！ ★";
       }
       newB=awardBadges(freeBadgeIds(L,n,G.correct,t),G.correct);
-    }else note="ふくしゅうモードの けっかは きろくされません。";
+    }else{ note="ふくしゅうモードの けっかは きろくされません。"; if(G.pr) tm=""; }
     if(G.hints) note+=`　ヒントを ${G.hints}かい つかったよ。`;
   }
   else if(mode==="stage"){
@@ -831,6 +962,8 @@ function finish(){
   $("againBtn").textContent=againLabel;
   $("againBtn").style.display = showAgain ? "" : "none";
   $("homeBtn").textContent = G.origin==="adv" ? "マップへ もどる" : "レベルを えらぶ";
+  $("nextBtn").style.display = mode==="practice" ? "" : "none";
+  $("nextBtn").classList.toggle("pri",primary==="next");
   $("againBtn").classList.toggle("pri",primary==="again");
   $("homeBtn").classList.toggle("pri",primary==="home");
   show("result");
@@ -842,6 +975,11 @@ $("levels").addEventListener("click",e=>{
   const b=e.target.closest(".lv"); if(!b) return;
   start("free",{L:LEVELS.find(L=>L.id===+b.dataset.id)});
 });
+$("prLevels").addEventListener("click",e=>{
+  const b=e.target.closest(".lv"); if(!b) return;
+  start("practice",{L:LEVELS.find(L=>L.id===+b.dataset.id)});
+});
+$("nextBtn").addEventListener("click",()=>{ const L=G.L; setHomeMode("ch"); start("free",{L}); });
 $("pad").addEventListener("click",e=>{
   const b=e.target.closest("button"); if(!b) return;
   press(b.dataset.k || b.textContent);
@@ -858,7 +996,7 @@ $("quitBtn").addEventListener("click",()=>{
   }
 });
 $("againBtn").addEventListener("click",()=>start(G.mode,G.opt));
-$("revBtn").addEventListener("click",()=>start("review",{list:G.wrong.map(w=>w.q),color:G.color,origin:G.origin}));
+$("revBtn").addEventListener("click",()=>start("review",{list:G.wrong.map(w=>w.q),color:G.color,origin:G.origin,pr:G.pr}));
 $("homeBtn").addEventListener("click",backToOrigin);
 $("badgeBtn").addEventListener("click",()=>{ renderBadges(); show("badges"); });
 $("bBack").addEventListener("click",goHome);
