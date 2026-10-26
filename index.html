@@ -67,19 +67,31 @@
   @media (max-width:420px){ .mode .mt{font-size:16px} .mode .ms{font-size:11px} }
 
   /* そろばん */
-  .soroban{display:none;max-width:600px;width:100%;margin:0 auto 12px}
+  .soroban{display:none;max-width:calc(600px * var(--slots,13) / 13);width:100%;margin:0 auto 12px;touch-action:none}
+  .soroban.haslo{max-width:740px}
   #play.prmode .soroban{display:block}
-  .stool{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 6px;font-size:14px;color:var(--sub)}
+  .stool{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 6px}
+  #sGuide{flex:1;font-size:16px;font-weight:bold;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;line-height:1.35;min-height:2.7em;display:flex;align-items:center}
+  @media (max-width:520px){ #sGuide{font-size:15px;min-height:4.05em} }
+  #sGuide.ok{color:var(--green)} #sGuide.ng{color:var(--red)}
+  .sbody{display:flex;align-items:center;gap:10px}
+  .sbody .sframe{flex:1;min-width:0}
+  .loose{display:none;grid-template-columns:repeat(3,var(--bd,30px));gap:4px;padding:6px;align-content:center;
+    min-height:calc(var(--bd,30px) + 18px);border:3px dashed #e3cda9;border-radius:14px;background:#fffdf7}
+  .soroban.haslo .loose{display:grid}
   .stool button{background:#fff;border:2px solid var(--line);border-radius:12px;padding:5px 12px;font-size:15px;color:var(--sub);font-weight:bold;white-space:nowrap}
   .sframe{background:linear-gradient(#d49b60,#b9783f);border-radius:16px;padding:8px 10px;box-shadow:0 4px 0 #8d5a2b;touch-action:none}
-  .rod{position:relative;aspect-ratio:13/1.12;background:#fffaf0;border-radius:8px}
+  .rod{position:relative;aspect-ratio:var(--slots,13)/1.12;background:#fffaf0;border-radius:8px}
   .rod+.rod{margin-top:6px}
   .rod::before{content:"";position:absolute;left:1.5%;right:1.5%;top:50%;height:4px;margin-top:-2px;background:#b3ab9e;border-radius:2px}
-  .bead{position:absolute;top:5%;height:90%;width:calc(100% / 13 - 2px);padding:0;border-radius:50%;
-    left:calc(var(--x) * 100% / 13 + 1px);transition:left .16s ease-out;
+  .bead{position:absolute;top:5%;height:90%;width:calc(100% / var(--slots,13) - 2px);padding:0;border-radius:50%;
+    left:calc(var(--x) * 100% / var(--slots,13) + 1px);transition:left .16s ease-out;
     background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.8) 0 14%,transparent 42%),var(--bc);
     box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.3)}
-  .bead.c1{--bc:#ef6c4a} .bead.c2{--bc:#ffd54f}
+  .bead.c1{--bc:#ef6c4a} .bead.c2{--bc:#ffd54f} .bead.c3{--bc:#5c9cf5}
+  .bead.lb{position:relative;left:auto;top:auto;width:var(--bd,30px);height:var(--bd,30px);transition:transform .2s}
+  .bead.lb.drag{transition:none;z-index:20;cursor:grabbing}
+  .bead.gone{transform:translateX(160%);opacity:0;transition:transform .22s,opacity .22s}
   #play.prmode .time{display:none}
   #play.prmode .hintbtn{display:none!important}
   #play.prmode .qbox{min-height:116px;padding:12px 10px;margin:4px 0 10px}
@@ -326,9 +338,9 @@
     <button class="hintbtn" id="hintBtn">ヒント</button>
     <div class="mark" id="mark"><div class="sym" id="markSym"></div><div class="cor" id="markCor"></div></div>
   </div>
-  <div class="soroban">
-    <div class="stool"><span>たまを タッチ・スライドして かんがえよう</span><button id="soroReset">たまを もどす</button></div>
-    <div class="sframe" id="sframe"></div>
+  <div class="soroban" id="soro">
+    <div class="stool"><span id="sGuide"></span><button id="soroReset">たまを もどす</button></div>
+    <div class="sbody"><div class="sframe" id="sframe"></div><div class="loose" id="sloose"></div></div>
   </div>
   <div class="pad" id="pad">
     <button>7</button><button>8</button><button>9</button>
@@ -606,7 +618,7 @@ function renderHome(){
   document.querySelectorAll(".mpanel").forEach(p=>p.classList.toggle("on",p.id==="mp-"+homeMode));
   $("prLevels").innerHTML = LEVELS.map(L=>`<button class="lv" style="--c:${L.color}" data-id="${L.id}">
       <div class="no">レベル ${L.id}</div><div class="nm">${L.name}</div>
-      <div class="ex">${L.ex}</div><div class="best soro">${PR_N}もん　そろばん ${L.id>=5?20:10}だま</div></button>`).join("");
+      <div class="ex">${L.ex}</div><div class="best soro">${PR_N}もん　そろばん ${L.id===1?5:L.id>=5?20:10}だま</div></button>`).join("");
   $("badgeBtn").textContent=`バッヂを みる（${Object.keys(loadB().got).length} / ${ALLB.length}）`;
   $("levels").innerHTML = LEVELS.map(L=>{
     const r=rec[`${L.id}-${count}`];
@@ -714,42 +726,133 @@ function bossQuestions(i,n){
 }
 
 /* ================= そろばん ================= */
-// 1れつ 10だま。ひだりに よせた たまが かぞえる たま。
-const SLOTS=13;
-let soro=[0];
-function renderSoro(rows){
-  soro=Array(rows).fill(0);
-  let h="";
-  for(let r=0;r<rows;r++){
-    h+=`<div class="rod" data-r="${r}">`;
-    for(let k=0;k<10;k++) h+=`<button class="bead ${k<5?'c1':'c2'}" data-k="${k}" tabindex="-1" aria-label="たま"></button>`;
-    h+=`</div>`;
-  }
-  $("sframe").innerHTML=h; drawSoro();
+// ひだりに よせた たまが かぞえる たま。もんだいに あわせて たまを おいておく。
+// SB = {q, id, rows:[{beads:[いろ], n:ひだりの かず, slots, erase}], loose:バラの かず}
+let SB=null;
+function soroInit(q){
+  const id=q.L.id, a=q.a, b=q.b, C=k=>k<5?"c1":"c2";
+  const row=(cnt,n,slots=13,erase=false)=>({beads:Array.from({length:cnt},(_,k)=>C(k)),n,slots,erase});
+  let rows, loose=0;
+  if(id===1)      rows=[row(5,a,8)];                 // 5だま：ひだりに a、みぎに のこり
+  else if(id===2) rows=[row(10,a)];                  // 10だま：ひだりに a、みぎに のこり
+  else if(id===3) rows=[row(a+b,a)];                 // ひつような かずだけ：ひだりに a、みぎに b
+  else if(id===4) rows=[row(a,a)];                   // ひつような かずだけ：ひだりに a
+  else if(id===5){ rows=[row(a,a),row(0,0)]; loose=b; }            // うえに a、わくの そとに バラ b
+  else rows=[row(10,10,13,true),row(a-10,a-10)];                   // うえに 10（けせる）、したに のこり
+  return {q,id,rows,loose};
+}
+function setupSoro(q){ clearTimeout(warnT); warnT=null; SB=soroInit(q); buildSoro(); }
+function beadX(R,k){ return k<R.n ? k : R.slots-R.beads.length+k; }
+function buildSoro(){
+  const S=SB, el=$("soro");
+  el.style.setProperty("--slots",S.rows[0].slots);
+  el.classList.toggle("haslo",S.id===5);
+  $("sframe").innerHTML=S.rows.map((R,r)=>`<div class="rod" data-r="${r}">`+
+    R.beads.map((c,k)=>`<button class="bead ${c}" data-k="${k}" style="--x:${beadX(R,k)}" tabindex="-1" aria-label="たま"></button>`).join("")+`</div>`).join("");
+  $("sloose").innerHTML=Array.from({length:S.loose},(_,k)=>`<button class="bead lb c3" data-l="${k}" tabindex="-1" aria-label="バラの たま"></button>`).join("");
+  sizeLoose(); clearTimeout(warnT); warnT=null; soroGuide();
 }
 function drawSoro(){
   $("sframe").querySelectorAll(".rod").forEach((rod,r)=>{
-    const n=soro[r];
-    rod.querySelectorAll(".bead").forEach((b,k)=>b.style.setProperty("--x", k<n ? k : SLOTS-10+k));
+    const R=SB.rows[r];
+    rod.querySelectorAll(".bead").forEach((b,k)=>b.style.setProperty("--x",beadX(R,k)));
   });
+  clearTimeout(warnT); warnT=null; soroGuide();
 }
+function sizeLoose(){
+  if(!SB || SB.id!==5) return;
+  const W=$("soro").clientWidth; if(!W) return;
+  $("soro").style.setProperty("--bd",Math.max(18,Math.floor((W-56)/16))+"px");
+}
+window.addEventListener("resize",sizeLoose);
+
+// ガイドの ことば
+let warnT=null;
+function soroGuide(){
+  if(!SB || warnT) return;
+  const S=SB, {a,b}=S.q, R=S.rows[0]; let m="", c="";
+  switch(S.id){
+    case 1: case 2: m="みぎの たまは いくつ？"; break;
+    case 3: if(R.n===R.beads.length){ m="ぜんぶで いくつ？"; c="ok"; } else m="たす かずだけ、みぎの たまを ひだりへ うごかそう"; break;
+    case 4: if(R.n===a-b){ m="のこりは いくつ？"; c="ok"; } else if(R.n<a-b) m="うごかしすぎたよ。ひく かずだけ うごかそう"; else m="ひく かずだけ、たまを みぎへ うごかそう"; break;
+    case 5:
+      if(R.beads.length<10) m="あと いくつで 10？ バラの たまを うえの だんへ スワイプしよう";
+      else if(S.loose>0){ m="10が できた！ のこりの バラを したの だんへ スワイプしよう"; c="ok"; }
+      else { m="10と いくつ？ ぜんぶで いくつ？"; c="ok"; }
+      break;
+    case 6: {
+      const rm=10-R.beads.length;
+      if(rm<b) m="10から ひこう。のこりは いくつ？（うえの たまを みぎへ スワイプ）";
+      else if(rm===b){ m="のこりと したの たまを あわせて いくつ？"; c="ok"; }
+      else { m="ひきすぎたよ。「たまを もどす」で やりなおそう"; c="ng"; }
+    }
+  }
+  const g=$("sGuide"); g.textContent=m; g.className=c;
+}
+function soroWarn(m){
+  clearTimeout(warnT); const g=$("sGuide"); g.textContent=m; g.className="ng";
+  warnT=setTimeout(()=>{ warnT=null; soroGuide(); },1800);
+}
+
+// そうさ
 let sDrag=null;
-$("sframe").addEventListener("pointerdown",e=>{
-  const b=e.target.closest(".bead"); if(!b) return;
-  e.preventDefault(); sDrag={b,x:e.clientX};
+$("soro").addEventListener("pointerdown",e=>{
+  const b=e.target.closest(".bead"); if(!b || !SB) return;
+  e.preventDefault();
+  sDrag={b,x:e.clientX,y:e.clientY,loose:b.classList.contains("lb")};
+  if(sDrag.loose){ b.classList.add("drag"); try{ b.setPointerCapture(e.pointerId); }catch(_){} }
 });
-window.addEventListener("pointercancel",()=>{ sDrag=null; });
+window.addEventListener("pointermove",e=>{
+  if(sDrag && sDrag.loose) sDrag.b.style.transform=`translate(${e.clientX-sDrag.x}px,${e.clientY-sDrag.y}px)`;
+});
+window.addEventListener("pointercancel",()=>{
+  if(sDrag && sDrag.loose){ sDrag.b.classList.remove("drag"); sDrag.b.style.transform=""; }
+  sDrag=null;
+});
 window.addEventListener("pointerup",e=>{
   if(!sDrag) return;
-  const {b,x}=sDrag; sDrag=null;
-  const r=+b.parentNode.dataset.r, k=+b.dataset.k, n=soro[r], dx=e.clientX-x;
+  const d=sDrag; sDrag=null;
+  if(d.loose) dropLoose(d,e); else rowAct(d,e.clientX-d.x);
+});
+// ふつうの だん：タッチ・スライドで うごかす／レベル6の うえの だん：みぎへ スワイプで けす
+function rowAct(d,dx){
+  const rod=d.b.parentNode, r=+rod.dataset.r, k=+d.b.dataset.k, R=SB.rows[r], n=R.n;
+  if(R.erase){
+    if(dx<=12){ if(Math.abs(dx)<=12) soroWarn("たまを みぎへ スワイプして けそう"); return; }
+    [...rod.querySelectorAll(".bead")].slice(k).forEach(x=>x.classList.add("gone"));
+    tone([520,390],"sine",.05,.05);
+    const S=SB;
+    setTimeout(()=>{ if(SB!==S) return; R.beads=R.beads.slice(0,k); R.n=Math.min(R.n,k); buildSoro(); },230);
+    return;
+  }
   let nn;
   if(dx<-12) nn=Math.max(n,k+1);        // ひだりへ スライド
   else if(dx>12) nn=Math.min(n,k);      // みぎへ スライド
   else nn = k<n ? k : k+1;              // タッチ
-  if(nn!==n){ soro[r]=nn; drawSoro(); tone([nn>n?700:520],"sine",.05,.03); }
-});
-$("soroReset").addEventListener("click",()=>{ soro=soro.map(()=>0); drawSoro(); });
+  if(nn!==n){ R.n=nn; drawSoro(); tone([nn>n?700:520],"sine",.05,.03); }
+}
+// バラの たま：うえ・したの だんへ スワイプ（タッチなら あいている だんへ）
+function dropLoose(d,e){
+  const b=d.b; b.classList.remove("drag");
+  const back=()=>{ b.style.transform=""; };
+  let r=-1;
+  if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>12){
+    let best=1e9;
+    $("sframe").querySelectorAll(".rod").forEach((rod,i)=>{
+      const B=rod.getBoundingClientRect();
+      if(e.clientX<B.left-20 || e.clientX>B.right+30) return;
+      const dy=Math.abs(e.clientY-(B.top+B.height/2));
+      if(dy<best && dy<B.height*1.4){ best=dy; r=i; }
+    });
+  }else r = SB.rows[0].beads.length<10 ? 0 : 1;
+  if(r<0){ back(); return; }
+  if(r===1 && SB.rows[0].beads.length<10){ back(); soroWarn("さきに うえの だんを 10に しよう"); return; }
+  const R=SB.rows[r];
+  if(R.beads.length>=10){ back(); soroWarn("うえの だんは もう いっぱい。したの だんへ"); return; }
+  R.beads.splice(R.n,0,"c3"); R.n++; SB.loose--;
+  buildSoro(); tone([700,880],"sine",.06,.04);
+}
+$("soroReset").addEventListener("click",()=>{ if(SB){ clearTimeout(warnT); warnT=null; setupSoro(SB.q); } });
 
 /* ================= ゲーム ================= */
 let G=null, timerId=null;
@@ -783,7 +886,7 @@ function start(mode,opt){
 
 function nextQ(){
   G.input=""; $("frame").innerHTML=""; G.qStart=performance.now(); G.tries=0;
-  if(G.pr) renderSoro(G.qs[G.i].L.id>=5 ? 2 : 1);
+  if(G.pr) setupSoro(G.qs[G.i]);
   $("hintBtn").style.display = G.qs[G.i].L.type==="comp" ? "" : "none";
   drawQ();
 }
