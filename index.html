@@ -89,6 +89,14 @@
     background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.8) 0 14%,transparent 42%),var(--bc);
     box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.3)}
   .bead.faded{opacity:.22}
+  /* レベル5：10の かたまり */
+  .rod.ten{box-shadow:0 0 0 3px #ffd54f,0 0 14px 4px rgba(255,193,7,.55)}
+  .rod.ten .bead{--bc:#ffa000}
+  .rod.tenflash{animation:tenglow 1.4s ease-out}
+  @keyframes tenglow{0%{box-shadow:none}35%{box-shadow:0 0 0 5px #fff59d,0 0 30px 14px rgba(255,193,7,.95)}
+    100%{box-shadow:0 0 0 3px #ffd54f,0 0 14px 4px rgba(255,193,7,.55)}}
+  .rod.tenflash .bead{animation:tenpop .5s calc(var(--x) * 50ms) both}
+  @keyframes tenpop{0%{transform:scale(1)}50%{transform:scale(1.28) translateY(-8%);filter:brightness(1.35)}100%{transform:scale(1)}}
   .bead.c1{--bc:#ef6c4a} .bead.c2{--bc:#ffd54f} .bead.c3{--bc:#5c9cf5}
   .bead.lb{position:relative;left:auto;top:auto;width:var(--bd,30px);height:var(--bd,30px);transition:transform .2s}
   .bead.lb.drag{transition:none;z-index:20;cursor:grabbing}
@@ -754,6 +762,12 @@ function buildSoro(){
   $("sframe").innerHTML=S.rows.map((R,r)=>`<div class="rod" data-r="${r}">`+
     R.beads.map((c,k)=>`<button class="bead ${c}${fadeOf(R,k)?' faded':''}" data-k="${k}" style="--x:${beadX(R,k)}" tabindex="-1" aria-label="たま"></button>`).join("")+`</div>`).join("");
   $("sloose").innerHTML=Array.from({length:S.loose},(_,k)=>`<button class="bead lb c3" data-l="${k}" tabindex="-1" aria-label="バラの たま"></button>`).join("");
+  // レベル5：うえの だんが 10に なったら ひかって おなじ いろに
+  if(S.id===5 && S.rows[0].beads.length===10){
+    const rod=$("sframe").querySelector(".rod");
+    rod.classList.add("ten");
+    if(!S.tenShown){ S.tenShown=true; rod.classList.add("tenflash"); tone([784,988,1175,1568],"triangle",.16,.09); }
+  }
   sizeLoose(); clearTimeout(warnT); warnT=null; soroGuide();
 }
 function drawSoro(){
