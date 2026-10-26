@@ -85,9 +85,10 @@
   .rod+.rod{margin-top:6px}
   .rod::before{content:"";position:absolute;left:1.5%;right:1.5%;top:50%;height:4px;margin-top:-2px;background:#b3ab9e;border-radius:2px}
   .bead{position:absolute;top:5%;height:90%;width:calc(100% / var(--slots,13) - 2px);padding:0;border-radius:50%;
-    left:calc(var(--x) * 100% / var(--slots,13) + 1px);transition:left .16s ease-out;
+    left:calc(var(--x) * 100% / var(--slots,13) + 1px);transition:left .16s ease-out,opacity .2s;
     background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.8) 0 14%,transparent 42%),var(--bc);
     box-shadow:inset 0 -3px 0 rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.3)}
+  .bead.faded{opacity:.22}
   .bead.c1{--bc:#ef6c4a} .bead.c2{--bc:#ffd54f} .bead.c3{--bc:#5c9cf5}
   .bead.lb{position:relative;left:auto;top:auto;width:var(--bd,30px);height:var(--bd,30px);transition:transform .2s}
   .bead.lb.drag{transition:none;z-index:20;cursor:grabbing}
@@ -743,20 +744,22 @@ function soroInit(q){
   return {q,id,rows,loose};
 }
 function setupSoro(q){ clearTimeout(warnT); warnT=null; SB=soroInit(q); buildSoro(); }
+// レベル4（ひきざん）：みぎへ うごかした（ひいた）たまは うすく する
+function fadeOf(R,k){ return SB && SB.id===4 && k>=R.n; }
 function beadX(R,k){ return k<R.n ? k : R.slots-R.beads.length+k; }
 function buildSoro(){
   const S=SB, el=$("soro");
   el.style.setProperty("--slots",S.rows[0].slots);
   el.classList.toggle("haslo",S.id===5);
   $("sframe").innerHTML=S.rows.map((R,r)=>`<div class="rod" data-r="${r}">`+
-    R.beads.map((c,k)=>`<button class="bead ${c}" data-k="${k}" style="--x:${beadX(R,k)}" tabindex="-1" aria-label="たま"></button>`).join("")+`</div>`).join("");
+    R.beads.map((c,k)=>`<button class="bead ${c}${fadeOf(R,k)?' faded':''}" data-k="${k}" style="--x:${beadX(R,k)}" tabindex="-1" aria-label="たま"></button>`).join("")+`</div>`).join("");
   $("sloose").innerHTML=Array.from({length:S.loose},(_,k)=>`<button class="bead lb c3" data-l="${k}" tabindex="-1" aria-label="バラの たま"></button>`).join("");
   sizeLoose(); clearTimeout(warnT); warnT=null; soroGuide();
 }
 function drawSoro(){
   $("sframe").querySelectorAll(".rod").forEach((rod,r)=>{
     const R=SB.rows[r];
-    rod.querySelectorAll(".bead").forEach((b,k)=>b.style.setProperty("--x",beadX(R,k)));
+    rod.querySelectorAll(".bead").forEach((b,k)=>{ b.style.setProperty("--x",beadX(R,k)); b.classList.toggle("faded",fadeOf(R,k)); });
   });
   clearTimeout(warnT); warnT=null; soroGuide();
 }
