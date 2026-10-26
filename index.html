@@ -68,7 +68,7 @@
 
   /* そろばん */
   .soroban{display:none;max-width:calc(600px * var(--slots,13) / 13);width:100%;margin:0 auto 12px;touch-action:none}
-  .soroban.haslo{max-width:740px}
+  .soroban.haslo{max-width:620px}
   #play.prmode .soroban{display:block}
   .stool{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 6px}
   #sGuide{flex:1;font-size:16px;font-weight:bold;color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;line-height:1.35;min-height:2.7em;display:flex;align-items:center}
@@ -731,14 +731,15 @@ function bossQuestions(i,n){
 let SB=null;
 function soroInit(q){
   const id=q.L.id, a=q.a, b=q.b, C=k=>k<5?"c1":"c2";
-  const row=(cnt,n,slots=13,erase=false)=>({beads:Array.from({length:cnt},(_,k)=>C(k)),n,slots,erase});
+  const row=(cnt,n,slots=13,erase=false,fixed=false)=>({beads:Array.from({length:cnt},(_,k)=>C(k)),n,slots,erase,fixed});
   let rows, loose=0;
   if(id===1)      rows=[row(5,a,8)];                 // 5だま：ひだりに a、みぎに のこり
   else if(id===2) rows=[row(10,a)];                  // 10だま：ひだりに a、みぎに のこり
   else if(id===3) rows=[row(a+b,a)];                 // ひつような かずだけ：ひだりに a、みぎに b
   else if(id===4) rows=[row(a,a)];                   // ひつような かずだけ：ひだりに a
-  else if(id===5){ rows=[row(a,a),row(0,0)]; loose=b; }            // うえに a、わくの そとに バラ b
-  else rows=[row(10,10,13,true),row(a-10,a-10)];                   // うえに 10（けせる）、したに のこり
+  // 20だまの わくは 10こで ちょうど いっぱいの はば（slots=10）。たまは よこに うごかさない。
+  else if(id===5){ rows=[row(a,a,10,false,true),row(0,0,10,false,true)]; loose=b; }   // うえに a、わくの そとに バラ b
+  else rows=[row(10,10,10,true),row(a-10,a-10,10,false,true)];                       // うえに 10（けせる）、したに のこり
   return {q,id,rows,loose};
 }
 function setupSoro(q){ clearTimeout(warnT); warnT=null; SB=soroInit(q); buildSoro(); }
@@ -762,7 +763,7 @@ function drawSoro(){
 function sizeLoose(){
   if(!SB || SB.id!==5) return;
   const W=$("soro").clientWidth; if(!W) return;
-  $("soro").style.setProperty("--bd",Math.max(18,Math.floor((W-56)/16))+"px");
+  $("soro").style.setProperty("--bd",Math.max(18,Math.floor((W-56)/(SB.rows[0].slots+3)))+"px");
 }
 window.addEventListener("resize",sizeLoose);
 
@@ -825,6 +826,7 @@ function rowAct(d,dx){
     setTimeout(()=>{ if(SB!==S) return; R.beads=R.beads.slice(0,k); R.n=Math.min(R.n,k); buildSoro(); },230);
     return;
   }
+  if(R.fixed) return;
   let nn;
   if(dx<-12) nn=Math.max(n,k+1);        // ひだりへ スライド
   else if(dx>12) nn=Math.min(n,k);      // みぎへ スライド
