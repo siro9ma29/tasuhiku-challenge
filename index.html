@@ -179,6 +179,17 @@
   @keyframes heroEnter{0%{opacity:0;transform:translateX(-90px)}15%{opacity:1;transform:translateX(-76px) translateY(-5px)}30%{transform:translateX(-60px)}
     45%{transform:translateX(-44px) translateY(-5px)}60%{transform:translateX(-28px)}75%{transform:translateX(-14px) translateY(-5px)}100%{opacity:1;transform:none}}
   .bhero.atk{animation:heroAtk .45s ease-out}
+  .bhero svg{overflow:visible}
+  .bhero.win{animation:heroWin .7s ease-out,heroCheer 1s .7s ease-in-out infinite;filter:drop-shadow(0 0 8px var(--aura,#fff59d))}
+  @keyframes heroWin{0%{transform:none}35%{transform:translateY(-22px) scale(1.08)}60%{transform:translateY(0) scale(1.08,.94)}100%{transform:none}}
+  @keyframes heroCheer{50%{transform:translateY(-5px)}}
+  .bhero .wfx{position:absolute;inset:-30px -20px 0;pointer-events:none}
+  .bhero .wfx span{position:absolute;bottom:0;color:var(--aura,#fff59d);font-weight:bold;text-shadow:0 0 6px var(--aura,#fff59d);opacity:0;animation:winUp 1.4s ease-out infinite}
+  @keyframes winUp{0%{opacity:0;transform:translateY(0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translateY(-90px) scale(1.1)}}
+  .bhero .ray{position:absolute;left:50%;top:40%;width:170px;height:170px;margin:-85px 0 0 -85px;z-index:-1;border-radius:50%;
+    background:repeating-conic-gradient(from 0deg,var(--aura,#fff59d) 0 10deg,transparent 10deg 30deg);opacity:.35;
+    -webkit-mask:radial-gradient(circle,#000 20%,transparent 70%);mask:radial-gradient(circle,#000 20%,transparent 70%);animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes heroAtk{0%{transform:none}35%{transform:translateX(46px) translateY(-5px) rotate(7deg)}100%{transform:none}}
   .bhero.hit{animation:heroHit .55s}
   @keyframes heroHit{0%{transform:none}20%{transform:translateX(-12px) rotate(-9deg);filter:brightness(1.3) drop-shadow(0 0 8px #ff5252)}
@@ -740,8 +751,8 @@ function better(n,o){ return !o || n.c>o.c || (n.c===o.c && n.t<o.t); }
 // eq：{head, body, right, left, back} に パーツの id（しょうりゃく すると いまの そうび）
 const INK="#2b2622", OL=`stroke="${INK}" stroke-width=".9" stroke-linejoin="round"`;
 const SKIN="#ffd9b8";
-function heroSVG(eq){
-  const P=eqParts(eq), part=k=>P[k]?partSVG(P[k]):"";
+function heroSVG(eq,pose){
+  const P=eqParts(eq), part=k=>P[k]?partSVG(P[k]):"", win=pose==="win";
   return `<svg viewBox="-4 -7 48 56" xmlns="http://www.w3.org/2000/svg">
   <ellipse cx="20" cy="46.6" rx="13" ry="2.4" fill="rgba(0,0,0,.2)"/>
   ${part("back")}
@@ -752,8 +763,10 @@ function heroSVG(eq){
   <!-- うで -->
   <path d="M12.6 26 Q8.6 29 8.4 34.5" stroke="${INK}" stroke-width="4.6" fill="none" stroke-linecap="round"/>
   <path d="M12.6 26 Q8.6 29 8.4 34.5" stroke="#3d8bfd" stroke-width="2.9" fill="none" stroke-linecap="round"/>
-  <path d="M27.4 26 Q31.4 29 31.6 34.5" stroke="${INK}" stroke-width="4.6" fill="none" stroke-linecap="round"/>
-  <path d="M27.4 26 Q31.4 29 31.6 34.5" stroke="#3d8bfd" stroke-width="2.9" fill="none" stroke-linecap="round"/>
+  ${win ? `<path d="M27.4 26 Q32.6 23.6 33.6 17.4" stroke="${INK}" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+  <path d="M27.4 26 Q32.6 23.6 33.6 17.4" stroke="#3d8bfd" stroke-width="2.9" fill="none" stroke-linecap="round"/>`
+  : `<path d="M27.4 26 Q31.4 29 31.6 34.5" stroke="${INK}" stroke-width="4.6" fill="none" stroke-linecap="round"/>
+  <path d="M27.4 26 Q31.4 29 31.6 34.5" stroke="#3d8bfd" stroke-width="2.9" fill="none" stroke-linecap="round"/>`}
   <!-- からだ（チュニック） -->
   <path d="M12.2 25 Q20 22.4 27.8 25 L29.4 38.2 Q20 40.2 10.6 38.2Z" fill="#3d8bfd" ${OL}/>
   <path d="M20 23.6 Q24.5 23.8 27.8 25 L29.4 38.2 Q24.5 39.4 20 39.4Z" fill="#1e5bb8" opacity=".35"/>
@@ -763,7 +776,7 @@ function heroSVG(eq){
   ${part("body")}
   <!-- て -->
   <circle cx="8.4" cy="35" r="2.3" fill="${SKIN}" ${OL}/>
-  <circle cx="31.6" cy="35" r="2.3" fill="${SKIN}" ${OL}/>
+  ${win ? "" : `<circle cx="31.6" cy="35" r="2.3" fill="${SKIN}" ${OL}/>`}
   <!-- あたま -->
   <path d="M30.6 10 L35.6 8.4 L34 11.6 L36.4 13.6 L31 13Z" fill="#e53935" ${OL}/>
   <circle cx="20" cy="15" r="11" fill="${SKIN}" ${OL}/>
@@ -775,8 +788,9 @@ function heroSVG(eq){
   <ellipse cx="15.8" cy="17" rx="1.7" ry="2.2" fill="${INK}"/><ellipse cx="24.2" cy="17" rx="1.7" ry="2.2" fill="${INK}"/>
   <circle cx="16.4" cy="16.2" r=".7" fill="#fff"/><circle cx="24.8" cy="16.2" r=".7" fill="#fff"/>
   <ellipse cx="12.8" cy="20.2" rx="1.8" ry="1.1" fill="#ff8a80" opacity=".5"/><ellipse cx="27.2" cy="20.2" rx="1.8" ry="1.1" fill="#ff8a80" opacity=".5"/>
-  <path d="M17.4 20.4 Q20 22.8 22.6 20.4" stroke="${INK}" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-  ${part("head")}${part("right")}${part("left")}
+  ${win ? `<path d="M16.8 20 Q20 24.6 23.2 20Z" fill="#c62828" ${OL}/><path d="M18.2 22.2 Q20 23.4 21.8 22.2" stroke="#ff8a80" stroke-width=".9" fill="none"/>`
+        : `<path d="M17.4 20.4 Q20 22.8 22.6 20.4" stroke="${INK}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`}
+  ${part("head")}${win ? `<g transform="rotate(14 33.6 16) translate(2 -21)">${P.right?part("right"):`<circle cx="31.6" cy="37" r="2.3" fill="${SKIN}" ${OL}/>`}</g>` : part("right")}${part("left")}
   </svg>`;
 }
 // マント（ゆうしゃの うしろ）
@@ -1595,7 +1609,7 @@ function judge(){
     if(G!==g) return;           // とちゅうで やめた とき
     $("mark").className="mark";
     if(G.mode==="boss"){
-      if(G.boss.over==="win"){ $("bMon").className="monster down"; fanfare(); setTimeout(()=>{ if(G===g) finish(); },1100); return; }
+      if(G.boss.over==="win"){ $("bMon").className="monster down"; fanfare(); setTimeout(()=>{ if(G===g) heroWin(); },500); setTimeout(()=>{ if(G===g) finish(); },2600); return; }
       if(G.boss.over==="lose"){ finish(); return; }
       G.i++; if(G.i>=G.qs.length) G.qs=G.qs.concat(bossQuestions(G.opt.i,30,G.opt.d));
       G.lock=false; nextQ(); return;
@@ -1721,6 +1735,14 @@ function showSlash(t,crit){
   el.innerHTML=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${h}</svg>`;
   el.className="slash"; void el.offsetWidth; el.className="slash show"+(crit?" crit":"");
   if(crit){ const p=$("bossPanel"); p.classList.remove("critfx"); void p.offsetWidth; p.classList.add("critfx"); }
+}
+function heroWin(){
+  const h=$("bHero"), t=G.boss.sw, col=SLASH[t].g;
+  h.style.setProperty("--aura", t>=5 ? col : t>=3 ? "#cfe8ff" : "#fff59d");
+  h.innerHTML=`<div class="ray"></div>`+heroSVG(undefined,"win")
+    +`<div class="wfx">${["✦","★","✦","✧","★","✦"].map((c,k)=>`<span style="left:${8+k*16}%;font-size:${12+(k*5)%9}px;animation-delay:${k*220}ms">${c}</span>`).join("")}</div>`;
+  heroAnim("win");
+  bossMsg(`<span class="gold">ゆうしゃの しょうり！</span>`);
 }
 function heroAnim(c){ const h=$("bHero"); h.className="bhero"; void h.offsetWidth; h.className="bhero "+c; }
 // メッセージウィンドウ（1もじずつ ひょうじ）
