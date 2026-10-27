@@ -80,6 +80,39 @@
   .dtag{display:inline-block;color:#fff;background:var(--d);border-radius:999px;padding:1px 10px;font-size:14px;
     vertical-align:middle;margin-left:8px;letter-spacing:0;position:relative;top:-2px}
   .ovc .red{color:var(--red);font-weight:bold}
+  /* ほし・アイテム */
+  .path{padding-bottom:22px}
+  .nst{position:absolute;top:calc(100% + 2px);left:50%;transform:translateX(-50%);white-space:nowrap;
+    font-size:13px;letter-spacing:-1px;line-height:1;color:#e2d9c6}
+  .nst .on{color:#f2b600;text-shadow:0 1px 0 #b07d00}
+  .ico{display:inline-block;width:1.5em;height:1.5em;vertical-align:-.45em}
+  .ico svg{width:100%;height:100%}
+  .bagline{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;background:#fff;border-radius:999px;
+    padding:4px 14px;margin:0 auto 10px;font-size:16px;font-weight:bold;box-shadow:0 3px 0 var(--line)}
+  .bagline .bl{color:var(--sub);font-size:14px}
+  @media (max-width:420px){ .bagline .inm{display:none} .bagline{gap:10px} }
+  .stlist{display:inline-block;text-align:left;margin-top:10px;font-size:15px;line-height:1.75;background:#fffaf0;border-radius:12px;padding:6px 12px}
+  .stlist .s{color:#e2d9c6;font-size:18px} .stlist .s.on{color:#f2b600}
+  @media (max-width:420px){ .stlist{font-size:13px;padding:6px 8px} }
+  .rstars{font-size:46px;letter-spacing:6px;line-height:1.1;color:#e2d9c6}
+  .rstars .on{color:#f2b600;text-shadow:0 2px 0 #b07d00}
+  .rstars .new{display:inline-block;animation:pop .7s}
+  .rstars small{display:block;font-size:13px;letter-spacing:0;color:var(--sub)}
+  .getitems{margin-top:10px}
+  .getitems .ttl{font-size:20px;font-weight:bold;color:#2b8a57;margin-bottom:6px}
+  .getitems .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,150px));justify-content:center;gap:8px}
+  .icard{background:#f0faf4;border-radius:14px;padding:8px 6px;animation:pop .6s;word-break:keep-all;overflow-wrap:anywhere}
+  .icard .ico{width:46px;height:46px;display:block;margin:0 auto 2px}
+  .icard b{display:block;font-size:17px} .icard small{display:block;font-size:12px;color:var(--sub)}
+  .items{position:absolute;right:2px;top:2px;display:flex;flex-direction:column;gap:4px;z-index:2}
+  .itm{position:relative;width:34px;height:34px;border-radius:10px;background:#232a5a;border:2px solid #3b4384;padding:3px}
+  .itm svg{width:100%;height:100%}
+  .itm b{position:absolute;right:-7px;bottom:-6px;background:#f5c542;color:#12152e;font-size:11px;border-radius:999px;
+    min-width:17px;padding:0 3px;line-height:17px}
+  .itm:disabled{opacity:.35}
+  .itm.on{border-color:#f5c542;box-shadow:0 0 10px #f5c542;opacity:1}
+  .itm.on b{background:#2bb673;color:#fff}
+  @media (max-width:600px){ .itm{width:30px;height:30px;padding:2px} .items{gap:3px} }
   #play.easy #bHearts,#play.easy #bAtkRow{display:none}
   @media (max-width:420px){ .diffsel b{font-size:16px} .diffsel small{font-size:11px} }
   @media (max-width:420px){ .mode .mt{font-size:16px} .mode .ms{font-size:11px} }
@@ -388,6 +421,7 @@
 <section id="map" class="screen">
   <div class="maphead"><button class="back" id="mapBack">◀ もどる</button><h2>ぼうけんマップ<span class="dtag" id="mapDiff"></span></h2></div>
   <div id="goal"></div>
+  <div class="bagline" id="bagLine"></div>
   <div class="mapmsg" id="mapMsg"></div>
   <div id="islands"></div>
   <div class="foot"><button id="advReset">ぼうけんを はじめから（先生用）</button></div>
@@ -405,7 +439,7 @@
   <div class="bosspanel" id="bossPanel">
     <div class="bp-head"><span class="bp-isl" id="bIsl"></span><div class="hearts" id="bHearts"></div></div>
     <div class="bp-top"><span class="bp-name" id="bName"></span><div class="hp"><i id="bHp"></i></div><span class="hpn" id="bHpN"></span></div>
-    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div></div>
+    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div></div>
     <div class="atk" id="bAtkRow"><span class="atk-l">こうげき</span><div class="atkbar"><i id="bAtk"></i></div></div>
     <div class="msgwin" id="bMsg"></div>
   </div>
@@ -444,6 +478,8 @@
     <div class="big" id="rScore"></div>
     <div class="tm" id="rTime"></div>
     <div class="msg" id="rMsg"></div>
+    <div id="rStars"></div>
+    <div id="rItems"></div>
     <div id="rBadges"></div>
     <div class="wrongs" id="rWrongs"></div>
     <div class="note" id="rNote"></div>
@@ -535,6 +571,41 @@ const loadAdv=(d=curDiff())=>loadAll().d[d];
 function saveAdv(v,d=curDiff()){ const a=loadAll(); a.d[d]=v; if(d==="normal" && v.pos>=TOTAL) a.unlock=true; lsSet(AKEY,a); }
 function setDiff(d){ const a=loadAll(); a.cur=d; lsSet(AKEY,a); }
 const dtag=d=>`<span class="dtag" style="--d:${DIFFS[d].c}">${DIFFS[d].name}</span>`;
+
+/* ---- ステージの ほし と アイテム ----
+   ほし（ステージごと、はじめて とった ときに アイテムを 1こ もらえる）
+   st[k]：とった ほしの ビット（1:ごうかく 2:ノーミス 4:スピード）／ bag：もちもの */
+const ITEMS={
+  herb:  {name:"やくそう", desc:"ハートを 1つ かいふく"},
+  sword: {name:"つるぎ",   desc:"せいかいの ダメージ ＋3"},
+  shield:{name:"たて",     desc:"じかんぎれの こうげきを 1かい ふせぐ"},
+};
+const STARS=[
+  {name:"ごうかく", item:"herb",   cond:L=>`${STAGE_PASS}もん いじょう せいかい`},
+  {name:"ノーミス", item:"sword",  cond:L=>`${STAGE_N}もん ぜんぶ せいかい`},
+  {name:"スピード", item:"shield", cond:L=>`1もん ${SPEED[L.id]}びょう いないで ごうかく`},
+];
+const SWORD_DMG=3;
+const starsOf=(A,k)=>(A.st&&A.st[k])||0;
+const bagOf=A=>Object.assign({herb:0,sword:0,shield:0},A.bag||{});
+const starStr=m=>[0,1,2].map(b=>`<span class="${m>>b&1?'on':''}">★</span>`).join("");
+function itemSVG(t){
+  const v={
+    herb:`<rect x="12" y="2" width="8" height="5" rx="1.5" fill="#a1887f"/>
+      <path d="M11 7h10v4l5 6v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-9l5-6z" fill="#dff5e8" stroke="#1f8a52" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M7.2 18.5h17.6V26a2 2 0 0 1-2 2H9.2a2 2 0 0 1-2-2z" fill="#2bb673"/>
+      <path d="M16 13c-4 2.5-4 7 0 9 4-2 4-6.5 0-9z" fill="#8fe0a6" stroke="#1f8a52" stroke-width="1.2"/>`,
+    sword:`<path d="M27.5 2.5l2 2-14 14-3.8-1.8L10 13z" transform="translate(-1 1)" fill="#e3eaef" stroke="#78909c" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M8 15l9 9-2.2 2.2-9-9z" fill="#ffc53d" stroke="#b07d00" stroke-width="1.2"/>
+      <path d="M10.5 21.5l-6 6" stroke="#8d6e63" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="3.6" cy="28.4" r="2.2" fill="#ffc53d"/>`,
+    shield:`<path d="M16 2.5l11.5 4v8.5c0 7-5 12-11.5 14.5C9.5 27 4.5 22 4.5 15V6.5z" fill="#3d8bfd" stroke="#1e5bb8" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M16 8v16M10 14.5h12" stroke="#ffc53d" stroke-width="3.2" stroke-linecap="round"/>`,
+  }[t];
+  return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">${v}</svg>`;
+}
+const ico=t=>`<span class="ico">${itemSVG(t)}</span>`;
+const bagHtml=(b,only)=>Object.keys(ITEMS).filter(t=>!only||only.includes(t)).map(t=>`${ico(t)}×${b[t]}`).join("　");
 const loadB=()=>{ const b=lsGet(BKEY,{got:{},total:0}); b.got=b.got||{}; b.total=b.total||0; return b; };
 const saveB=b=>lsSet(BKEY,b);
 function better(n,o){ return !o || n.c>o.c || (n.c===o.c && n.t<o.t); }
@@ -746,6 +817,7 @@ $("diffSel").addEventListener("click",e=>{
 function renderMap(){
   const d=curDiff(), A=loadAdv(d), pos=A.pos, done=pos>=TOTAL, curI=Math.min(ISLANDS.length-1,Math.floor(pos/STEPS));
   $("mapDiff").textContent=DIFFS[d].name; $("mapDiff").style.setProperty("--d",DIFFS[d].c);
+  $("bagLine").innerHTML=`<span class="bl">もちもの</span>`+Object.keys(ITEMS).map(t=>`<span>${ico(t)}<span class="inm"> ${ITEMS[t].name}</span>×${bagOf(A)[t]}</span>`).join("");
   // つぎの もくひょう
   if(done){
     $("goal").innerHTML=`<div class="goal" style="--c:#ffc53d"><div class="gi">${heroSVG()}</div>
@@ -777,7 +849,7 @@ function renderMap(){
     for(let s=0;s<STEPS;s++){
       const k=idx(i,s), boss=s===STEPS-1;
       const cls="node"+(boss?" boss":"")+(k<pos?" done":"")+(k===pos&&!done?" cur":"")+(A.moved===k?" pop":"");
-      const inner = boss ? monsterSVG(I.type,I.color,locked) : (k<pos?"★":s+1);
+      const inner = boss ? monsterSVG(I.type,I.color,locked) : (s+1) + (k<pos ? `<span class="nst">${starStr(starsOf(A,k))}</span>` : "");
       const piece = k===piecePos ? `<div class="piece ${A.moved!==undefined?'hop':''}">${heroSVG()}</div>` : "";
       h+=`<button class="${cls}" data-i="${i}" data-s="${s}" ${k>pos?'disabled':''} aria-label="${boss?'ボス':'ステージ '+(i+1)+'-'+(s+1)}">${inner}${piece}</button>`;
     }
@@ -806,8 +878,11 @@ function openStart(i,s){
     normal:`ハートは 3つ。まちがえると へるよ。<br>じかんが たつと ボスが こうげきしてくる！<br>はやく こたえると だいダメージ！`,
     hard:  `<span class="red">1かいでも まちがえたら まけ！</span><br>ボスの こうげきが はやいよ。ハートは 3つ。<br>はやく こたえると だいダメージ！`,
   };
+  const m=starsOf(A,k), bag=bagOf(A);
   $("ovDesc").innerHTML = (boss ? BOSS_DESC[d]
-      : `${STAGE_N}もん。${STAGE_PASS}もん いじょう せいかいで<br>コマが 1マス すすむ！`)
+        + `<br><span class="stlist">もちもの　${bagHtml(bag, d==="easy"?["sword"]:null)}</span>`
+      : `${STAGE_N}もん。${STAGE_PASS}もん いじょう せいかいで<br>コマが 1マス すすむ！`
+        + `<br><span class="stlist">` + STARS.map((S,b)=>`<span class="s ${m>>b&1?'on':''}">★</span>${ico(S.item)} <b>${S.name}</b>　${S.cond(LEVELS[i])}`).join("<br>") + `</span>`)
     + (k<A.pos ? `<br><span class="done">（クリアずみ。もういちど あそべるよ）</span>` : "");
   $("ovGo").textContent = boss ? "たたかう！" : "スタート！";
   $("ovGo").onclick=()=>{ $("ov").classList.remove("show"); start(boss?"boss":"stage",{i,s,d}); };
@@ -1004,12 +1079,13 @@ function start(mode,opt){
   $("pTag").textContent=tag; $("pTag").style.background=col; $("pBar").style.background=col;
   if(mode==="boss"){
     const I=ISLANDS[opt.i], max = opt.i===ISLANDS.length-1 ? 150 : 100;
-    G.boss={hp:max,max,hearts:3,over:null};
+    G.boss={hp:max,max,hearts:3,over:null,sword:false,shield:false};
+    G.bag=bagOf(loadAdv(opt.d)); G.used={herb:0,sword:0,shield:0};
     $("bName").textContent=I.boss; $("bIsl").textContent=I.name;
     bossMsg(`${I.boss}が あらわれた！`);
     $("bMon").className="monster"; $("bMon").innerHTML=monsterSVG(I.type,I.color);
     $("bDmg").className="dmg";
-    drawBoss();
+    drawBoss(); drawItems();
   }
   show("play"); nextQ();
   clearInterval(timerId);
@@ -1093,6 +1169,7 @@ function bossHit(ok,el){
     const f = G.opt.i>=4 ? 1.4 : 1;   // くりあがり・くりさがりの しまは じかんを ながめに
     let dmg, crit=false;
     if(el<2500*f){ dmg=15; crit=true; } else if(el<5000*f) dmg=10; else dmg=6;
+    if(b.sword) dmg+=SWORD_DMG;
     b.hp=Math.max(0,b.hp-dmg);
     const nm=ISLANDS[G.opt.i].boss;
     bossMsg(b.hp<=0 ? `<span class="gold">${nm}を やっつけた！</span>`
@@ -1137,6 +1214,13 @@ function bossTick(){
 function bossAttack(){
   const b=G.boss, mon=$("bMon"), g=G;
   drawAtk(0);
+  if(b.shield){   // たてで 1かい ふせぐ
+    b.shield=false; drawItems();
+    mon.className="monster"; void mon.offsetWidth; mon.className="monster atk";
+    tone([520,780,1040],"triangle",.12,.08);
+    bossMsg(`<span class="gold">たてで ${ISLANDS[G.opt.i].boss}の こうげきを ふせいだ！</span> たては こわれた…`);
+    b.atk0=performance.now(); b.warned=false; return;
+  }
   b.hearts--; b.justLost=true;
   mon.className="monster"; void mon.offsetWidth; mon.className="monster atk";
   const p=$("play"); p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
@@ -1172,6 +1256,25 @@ function bossMsg(html){
   };
   step(); msgTimer=setInterval(step,30);
 }
+// アイテム ボタン（イージーは こうげきが ないので つるぎだけ）
+function drawItems(){
+  const b=G.boss, left=t=>G.bag[t]-G.used[t];
+  const list = G.opt.d==="easy" ? ["sword"] : ["herb","sword","shield"];
+  $("bItems").innerHTML=list.map(t=>{
+    const on=(t==="sword"&&b.sword)||(t==="shield"&&b.shield);
+    const can=!b.over && left(t)>0 && (t==="herb" ? b.hearts<3 : !b[t]);
+    return `<button class="itm${on?' on':''}" data-t="${t}" ${on||can?'':'disabled'} aria-label="${ITEMS[t].name}">${itemSVG(t)}<b>${on?'ON':left(t)}</b></button>`;
+  }).join("");
+}
+$("bItems").addEventListener("click",e=>{
+  const el=e.target.closest(".itm"); if(!el || !G || G.mode!=="boss") return;
+  const t=el.dataset.t, b=G.boss;
+  if(b.over || G.bag[t]-G.used[t]<=0) return;
+  if(t==="herb"){ if(b.hearts>=3) return; b.hearts++; bossMsg(`<span class="gold">やくそうを つかった！</span> ハートが 1つ かいふく した！`); drawBoss(); }
+  else if(t==="sword"){ if(b.sword) return; b.sword=true; bossMsg(`<span class="gold">つるぎを そうびした！</span> せいかいの ダメージが ${SWORD_DMG} ふえる！`); }
+  else { if(b.shield) return; b.shield=true; bossMsg(`<span class="gold">たてを そうびした！</span> じかんぎれの こうげきを 1かい ふせぐよ。`); }
+  G.used[t]++; tone([660,990],"sine",.12,.08); drawItems();
+});
 function drawBoss(){
   const b=G.boss, r=b.hp/b.max;
   $("bHp").style.width=(r*100)+"%";
@@ -1180,11 +1283,13 @@ function drawBoss(){
   let h=""; for(let k=0;k<3;k++){ const lost=k>=b.hearts; h+=`<span class="${lost?'lost':''}${lost&&k===b.hearts&&b.justLost?' just':''}">♥</span>`; }
   b.justLost=false;
   $("bHearts").innerHTML=h;
+  if(G.used) drawItems();
 }
 
 /* ---- けっか ---- */
 function finish(){
   clearInterval(timerId);
+  $("rStars").innerHTML=""; $("rItems").innerHTML="";
   const t=performance.now()-G.t0, mode=G.mode, L=G.L;
   let newB=[], banner="", title="", big="", tm=`タイム　${fmt(t)}びょう`, msg="", note="", art="", artCls="";
   let againLabel="もういちど", showAgain=true, primary="again";
@@ -1215,9 +1320,21 @@ function finish(){
     if(G.hints) note+=`　ヒントを ${G.hints}かい つかったよ。`;
   }
   else if(mode==="stage"){
-    const {i,s}=G.opt, n=G.qs.length, pass=G.correct>=STAGE_PASS, k=idx(i,s);
+    const {i,s}=G.opt, n=G.qs.length, pass=G.correct>=STAGE_PASS, k=idx(i,s), Lv=LEVELS[i];
     let moved=false;
-    if(pass){ const A=loadAdv(G.opt.d); if(A.pos===k){ A.pos++; A.moved=k; saveAdv(A,G.opt.d); moved=true; } }
+    const A=loadAdv(G.opt.d), old=starsOf(A,k);
+    const now=(pass?1:0) | (G.correct===n?2:0) | (pass && t/n<=SPEED[Lv.id]*1000 ? 4:0);
+    const gain=now & ~old, bag=bagOf(A), got=[];
+    STARS.forEach((S,b)=>{ if(gain>>b&1){ bag[S.item]++; got.push(S); } });
+    A.st=Object.assign({},A.st,{[k]:old|now}); A.bag=bag;
+    if(pass && A.pos===k){ A.pos++; A.moved=k; moved=true; }
+    saveAdv(A,G.opt.d);
+    const m=old|now;
+    $("rStars").innerHTML=`<div class="rstars">`+[0,1,2].map(b=>`<span class="${m>>b&1?'on':''}${gain>>b&1?' new':''}">★</span>`).join("")
+      +`<small>`+STARS.map((S,b)=>`${m>>b&1?'★':'☆'}${S.name}`).join("　")+`</small></div>`;
+    $("rItems").innerHTML = got.length ? `<div class="getitems"><div class="ttl">アイテムを ゲット！</div><div class="row">`+
+      got.map(S=>`<div class="icard">${ico(S.item)}<b>${ITEMS[S.item].name}</b><small>${S.name}の ほし</small><small>${ITEMS[S.item].desc}</small></div>`).join("")+`</div></div>` : "";
+    if(!(m&4) && pass) note=`1もん ${SPEED[Lv.id]}びょう いないで ぜんぶ こたえると スピードの ほしが もらえるよ。`;
     newB=awardBadges([],G.correct);
     title=`ステージ ${i+1}-${s+1}`; art=heroSVG();
     big=`${G.correct}<small> / ${n}もん</small>`;
@@ -1233,7 +1350,11 @@ function finish(){
       if(nodmg) ids.push("nodmg");
       if(last) ids.push("legend");
       const was=hardOpen(loadAll());
-      const A=loadAdv(d); if(A.pos===k){ A.pos++; A.moved=k; saveAdv(A,d); moved=true; }
+      const A=loadAdv(d), bag=bagOf(A);
+      for(const t in G.used) bag[t]=Math.max(0,bag[t]-G.used[t]);
+      A.bag=bag;
+      if(A.pos===k){ A.pos++; A.moved=k; moved=true; }
+      saveAdv(A,d);
       unlocked = !was && hardOpen(loadAll());
     }
     newB=awardBadges(ids,G.correct);
@@ -1247,6 +1368,7 @@ function finish(){
       showAgain=false; primary="home";
     }else{
       msg = G.boss.miss ? "ハードは 1かい まちがえると まけ。おちついて もういちど！" : "れんしゅうして、もういちど たたかおう！";
+      if(Object.values(G.used).some(v=>v>0)) note="まけた ときは、つかった アイテムが もどってくるよ。";
       againLabel="もういちど たたかう";
     }
   }
