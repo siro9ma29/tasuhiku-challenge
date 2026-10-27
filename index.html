@@ -506,18 +506,83 @@
   .gotb .row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
   .gotb .bd{box-shadow:none;background:#fffaf0;animation:pop .6s;min-width:120px}
   .total{text-align:center;color:var(--sub);font-size:15px}
+
+  /* ===== ホーム：RPGの タイトルがめん ===== */
+  #home{background:transparent}
+  html:not(.battle) body{background:linear-gradient(#fff8ec,#f6ecd6)}
+  .tscene{position:relative;overflow:hidden;border-radius:22px;margin:0 0 14px;padding:22px 12px 14px;min-height:230px;
+    background:linear-gradient(#7cc4ff,#bfe5ff 55%,#e6f6ff);box-shadow:0 5px 0 #3f8f4a;}
+  .tsky .cl{position:absolute;height:22px;border-radius:999px;background:#fff;opacity:.9}
+  .tsky .cl::before,.tsky .cl::after{content:"";position:absolute;bottom:6px;border-radius:50%;background:#fff}
+  .tsky .cl::before{left:12px;width:30px;height:28px} .tsky .cl::after{left:34px;width:22px;height:20px}
+  .tsky .c1{left:6%;top:24px;width:76px} .tsky .c2{right:10%;top:16px;width:64px} .tsky .c3{left:52%;top:58px;width:54px;opacity:.7}
+  .thills{position:absolute;left:0;right:0;bottom:0;width:100%;height:96px}
+  .tcastle{position:absolute;right:16%;bottom:62px;width:58px;height:48px}
+  .thero{position:absolute;left:6%;bottom:12px;width:74px;height:86px}
+  .tmon{position:absolute;right:5%;bottom:10px;width:58px;height:58px}
+  .thero svg,.tmon svg{width:100%;height:100%}
+  #home h1{position:relative;margin:4px 0 12px;font-size:clamp(34px,8vw,54px);font-weight:900;letter-spacing:.06em;line-height:1.1;
+    text-shadow:3px 0 0 #fff,-3px 0 0 #fff,0 3px 0 #fff,0 -3px 0 #fff,2px 2px 0 #fff,-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,0 7px 0 #12152e;}
+  #home h1 span{color:#1e6fe0} #home h1 b{color:#e53935} #home h1 em{font-style:normal;color:#1b2150}
+  #home .hbtns{position:relative;margin:0 0 70px}
+  #home .eqbtn,#home .badgebtn{background:#12152e;border:3px solid #f5c542;color:#fff;border-radius:12px;box-shadow:0 3px 0 rgba(0,0,0,.25);
+    font-size:17px;padding:4px 14px 4px 8px}
+  #home .badgebtn{padding:8px 16px}
+  #home .eqbtn:active,#home .badgebtn:active{transform:translateY(2px)}
+  /* コマンド ウィンドウ */
+  .cmdwin{background:#12152e;border:4px solid #f5c542;border-radius:14px;padding:6px 10px 10px;margin:0 0 14px;
+    box-shadow:inset 0 0 0 3px #12152e,inset 0 0 0 5px rgba(245,197,66,.35),0 4px 0 rgba(0,0,0,.15)}
+  .cmdq{margin:0 0 6px 4px;color:#c9cff5;font-size:15px;font-weight:bold;letter-spacing:.1em}
+  .cmdwin .modes{margin:0;gap:6px}
+  .cmdwin .mode{background:transparent;border:2px solid transparent;box-shadow:none;border-radius:10px;color:#9aa0c8;padding:8px 4px 8px 22px;text-align:left}
+  .cmdwin .mode:active{transform:none;box-shadow:none}
+  .cmdwin .mode::after{display:none}
+  .cmdwin .mode .st{background:transparent;color:#9aa0c8;padding:0;font-size:13px}
+  .cmdwin .mode .st::after{content:"ばんめ"}
+  .cmdwin .mode .mt{color:#fff;font-size:20px}
+  .cmdwin .mode .ms{color:#9aa0c8}
+  .cmdwin .mode::before{content:"▶";position:absolute;left:4px;top:50%;transform:translateY(-50%);color:#f5c542;font-size:15px;opacity:0}
+  .cmdwin .mode.on{background:rgba(245,197,66,.12);border-color:rgba(245,197,66,.5);box-shadow:none}
+  .cmdwin .mode.on::before{opacity:1;animation:blink .6s infinite alternate}
+  .cmdwin .mode.on .mt{color:#f5c542} .cmdwin .mode.on .st{background:transparent;color:#f5c542}
+  /* クエストの ふだ（レベル） */
+  #home .lv{background:#fffaf0;border:2px solid #ead9b5;border-left:12px solid var(--c);box-shadow:0 4px 0 #ead9b5}
+  #home .lv .best{background:#f6ecd6}
+  #home .mlead{color:#6b6458}
+  /* ぼうけんに でる ボタン */
+  #home .advbtn{background:#12152e;border:4px solid #f5c542;box-shadow:0 5px 0 #8a6a12;border-radius:16px}
+  #home .advbtn .ab-art{background:radial-gradient(circle at 50% 60%,#2c3570,#1b2150)}
+  #home .advbtn .ab-t{color:#f5c542} #home .advbtn .ab-go{color:#f5c542;animation:blink .6s infinite alternate}
+  @media (max-width:560px){
+    .tscene{min-height:200px;padding-top:18px} .thero{width:58px;height:68px;left:3%} .tmon{width:44px;height:44px}
+    .tcastle{right:20%;bottom:54px;width:44px;height:38px} #home .hbtns{margin-bottom:58px}
+    #home .eqbtn,#home .badgebtn{font-size:14px} .cmdwin .mode{padding-left:18px} .cmdwin .mode .mt{font-size:16px}
+    .cmdwin .mode .st::after{content:""} .cmdwin .mode .ms{font-size:11px;white-space:nowrap;letter-spacing:-.02em} }
 </style>
 </head>
 <body>
 
 <!-- ===== ホーム ===== -->
 <section id="home" class="screen active">
-  <h1><span>たす</span><b>ひく</b>チャレンジ</h1>
-  <div class="hbtns"><button class="badgebtn" id="badgeBtn"></button><button class="eqbtn" id="eqBtn"><span class="eqi" id="eqBtnArt"></span>そうび</button></div>
+  <div class="tscene">
+    <div class="tsky" aria-hidden="true"><i class="cl c1"></i><i class="cl c2"></i><i class="cl c3"></i></div>
+    <svg class="thills" viewBox="0 0 800 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 70 Q120 30 250 62 T520 54 T800 46 L800 120 L0 120Z" fill="#8fd18f"/>
+      <path d="M0 96 Q160 66 330 90 T660 84 T800 92 L800 120 L0 120Z" fill="#5fb85f"/>
+    </svg>
+    <svg class="tcastle" viewBox="0 0 60 50" aria-hidden="true"><path d="M6 50V22h6v-6h4v6h8V14h-4l10-10 10 10h-4v8h8v-6h4v6h6v28H34V38a4 4 0 0 0-8 0v12Z" fill="#7a74b8"/><path d="M30 4V0l6 2-6 2" fill="#ef5350"/></svg>
+    <div class="thero" id="sceneHero" aria-hidden="true"></div>
+    <div class="tmon" id="sceneMon" aria-hidden="true"></div>
+    <h1><span>たす</span><b>ひく</b><em>チャレンジ</em></h1>
+    <div class="hbtns"><button class="eqbtn" id="eqBtn"><span class="eqi" id="eqBtnArt"></span>そうび</button><button class="badgebtn" id="badgeBtn"></button></div>
+  </div>
+  <div class="cmdwin">
+  <p class="cmdq">なにを する？</p>
   <div class="modes" id="modes">
     <button class="mode" data-m="pr" style="--m:var(--green)"><span class="st">1</span><span class="mt">れんしゅう</span><span class="ms">5もん・そろばん</span></button>
     <button class="mode" data-m="ch" style="--m:var(--blue)"><span class="st">2</span><span class="mt">チャレンジ</span><span class="ms">10・20もん</span></button>
     <button class="mode" data-m="adv" style="--m:#8a5cf0"><span class="st">3</span><span class="mt">ぼうけん</span><span class="ms">マップで すすむ</span></button>
+  </div>
   </div>
   <div class="mpanel" id="mp-pr">
     <p class="mlead">そろばんの たまを うごかしながら、ゆっくり かんがえよう。</p>
@@ -1228,6 +1293,7 @@ $("countSel").addEventListener("click",e=>{
 function renderHome(){
   const rec=loadRec(), A=loadAdv();
   $("abArt").innerHTML=heroSVG(); $("eqBtnArt").innerHTML=heroSVG();
+  $("sceneHero").innerHTML=heroSVG(); $("sceneMon").innerHTML=monsterSVG(ISLANDS[0].type, ISLANDS[0].color);
   const D=DIFFS[curDiff()];
   $("abSub").textContent = D.name+"　" + (A.pos>=TOTAL ? "ぜんぶの しまを クリア！" :
     `いま：${Math.floor(A.pos/STEPS)+1}つめの しま（${ISLANDS[Math.floor(A.pos/STEPS)].name}）`);
@@ -1237,7 +1303,7 @@ function renderHome(){
   $("prLevels").innerHTML = LEVELS.map(L=>`<button class="lv" style="--c:${L.color}" data-id="${L.id}">
       <div class="no">レベル ${L.id}</div><div class="nm">${L.name}</div>
       <div class="ex">${L.ex}</div><div class="best soro">${PR_N}もん　そろばん ${L.id===1?5:L.id>=5?20:10}だま</div></button>`).join("");
-  $("badgeBtn").textContent=`バッヂを みる（${Object.keys(loadB().got).length} / ${ALLB.length}）`;
+  $("badgeBtn").textContent=`バッヂ ${Object.keys(loadB().got).length} / ${ALLB.length}`;
   $("levels").innerHTML = LEVELS.map(L=>{
     const r=rec[`${L.id}-${count}`];
     const best = r ? `じこベスト：${r.c}/${count}もん　${fmt(r.t)}びょう ${r.c===count?'<span class="star">★</span>':''}`
