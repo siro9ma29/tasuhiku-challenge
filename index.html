@@ -114,6 +114,33 @@
   .itm.on b{background:#2bb673;color:#fff}
   @media (max-width:600px){ .itm{width:30px;height:30px;padding:2px} .items{gap:3px} }
   .itm.auto{display:block;cursor:default;margin-top:8px}
+  /* やくそう ボタン（ひだり した に おおきく） */
+  .herbbtn{position:absolute;left:4px;bottom:4px;z-index:2;width:64px;padding:4px 2px 3px;border-radius:14px;
+    background:linear-gradient(#2f9e63,#1f7a4a);border:3px solid #8fe0a6;color:#fff;box-shadow:0 3px 0 #0f4a2b;
+    display:flex;flex-direction:column;align-items:center;line-height:1.1}
+  .herbbtn svg{width:34px;height:34px}
+  .herbbtn .hl{font-size:12px;font-weight:bold;letter-spacing:0;white-space:nowrap}
+  .herbbtn b{position:absolute;right:-8px;top:-8px;background:#f5c542;color:#12152e;font-size:14px;border-radius:999px;
+    min-width:22px;padding:0 4px;line-height:22px;border:2px solid #12152e}
+  .herbbtn.ready{animation:herbPulse 1.1s ease-in-out infinite}
+  @keyframes herbPulse{0%,100%{box-shadow:0 3px 0 #0f4a2b,0 0 0 0 rgba(143,224,166,.7)}50%{box-shadow:0 3px 0 #0f4a2b,0 0 0 8px rgba(143,224,166,0);transform:scale(1.06)}}
+  .herbbtn:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 #0f4a2b}
+  .herbbtn:disabled{opacity:.4;filter:grayscale(.5)}
+  .herbbtn:disabled b{background:#9aa0c0}
+  @media (max-width:600px){ .herbbtn{width:56px;left:2px;bottom:2px} .herbbtn svg{width:28px;height:28px} .herbbtn .hl{font-size:11px} }
+  /* やくそうの エフェクト */
+  .heal{position:absolute;inset:-60px -14px -10px;pointer-events:none;z-index:4;overflow:hidden;border-radius:18px}
+  .heal.show{animation:healBg 1.4s ease-out forwards}
+  @keyframes healBg{0%{background:rgba(120,255,170,0)}15%{background:rgba(120,255,170,.35)}100%{background:rgba(120,255,170,0)}}
+  .heal .pt{position:absolute;bottom:-10px;color:#b9ffd0;font-weight:bold;text-shadow:0 0 6px #2bb673,0 0 12px #2bb673;opacity:0}
+  .heal.show .pt{animation:healUp 1.3s ease-out forwards}
+  @keyframes healUp{0%{opacity:0;transform:translateY(0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translateY(-150px) scale(1.1)}}
+  .heal .plus{position:absolute;right:92px;top:4px;font-size:22px;font-weight:bold;color:#fff;white-space:nowrap;opacity:0;
+    text-shadow:0 0 6px #2bb673,0 0 12px #2bb673,0 2px 0 #1f7a4a}
+  .heal.show .plus{animation:healPlus 1.4s ease-out forwards}
+  @keyframes healPlus{0%{opacity:0;transform:translateY(16px) scale(.6)}25%{opacity:1;transform:translateY(0) scale(1.2)}70%{opacity:1;transform:translateY(-6px) scale(1)}100%{opacity:0;transform:translateY(-16px)}}
+  #play.bossmode .hearts .healed{display:inline-block;animation:healHeart 1s ease-out}
+  @keyframes healHeart{0%{transform:scale(.3);color:#8fe0a6;text-shadow:0 0 14px #8fe0a6}50%{transform:scale(1.6);color:#8fe0a6;text-shadow:0 0 18px #8fe0a6}100%{transform:scale(1)}}
   .itm.auto.has{border-color:#5aa0ff;box-shadow:0 0 8px rgba(90,160,255,.8)}
   .itm.auto i{position:absolute;left:50%;top:-9px;transform:translateX(-50%);font-style:normal;font-size:9px;font-weight:bold;
     background:#5aa0ff;color:#fff;border-radius:999px;padding:0 4px;line-height:13px;white-space:nowrap}
@@ -489,7 +516,7 @@
   <div class="bosspanel" id="bossPanel">
     <div class="bp-head"><span class="bp-isl" id="bIsl"></span><div class="hearts" id="bHearts"></div></div>
     <div class="bp-top"><span class="bp-name" id="bName"></span><div class="hp"><i id="bHp"></i></div><span class="hpn" id="bHpN"></span></div>
-    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div><div class="guard" id="bGuard"></div></div>
+    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div><button class="herbbtn" id="bHerb" data-t="herb" aria-label="やくそう"></button><div class="guard" id="bGuard"></div><div class="heal" id="bHeal"></div></div>
     <div class="atk" id="bAtkRow"><span class="atk-l">こうげき</span><div class="atkbar"><i id="bAtk"></i></div></div>
     <div class="msgwin" id="bMsg"></div>
   </div>
@@ -1302,7 +1329,7 @@ function start(mode,opt){
     $("bName").textContent=I.boss; $("bIsl").textContent=I.name;
     const sh = opt.d!=="easy" ? G.bag.shield : 0;
     bossMsg(`${I.boss}が あらわれた！` + (sh>0 ? `<br><span class="gold">たてが ${sh}こ</span> じかんぎれの こうげきを まもって くれるよ。` : ""));
-    $("bGuard").className="guard";
+    $("bGuard").className="guard"; $("bHeal").className="heal";
     $("bMon").className="monster"; $("bMon").innerHTML=monsterSVG(I.type,I.color);
     $("bDmg").className="dmg";
     drawBoss(); drawItems();
@@ -1486,7 +1513,11 @@ function showGuard(){
 function drawItems(){
   const b=G.boss, left=t=>G.bag[t]-G.used[t];
   const list = itemsOf(G.opt.d);
-  $("bItems").innerHTML=list.map(t=>{
+  const hb=$("bHerb"), hn=left("herb"), hcan=!b.over && hn>0 && b.hearts<3;
+  hb.innerHTML=`${itemSVG("herb")}<span class="hl">やくそう</span><b>${hn}</b>`;
+  hb.disabled=!hcan; hb.classList.toggle("ready",hcan);
+  hb.setAttribute("aria-label",`やくそう のこり ${hn}こ`);
+  $("bItems").innerHTML=list.filter(t=>t!=="herb").map(t=>{
     if(t==="shield")   // たては じどうで つかうので おせない（のこりの かずだけ ひょうじ）
       return `<div class="itm auto${left(t)>0?' has':''}" data-t="shield" role="img" aria-label="たて のこり ${left(t)}こ（じどう）">${itemSVG(t)}<i>じどう</i><b>${left(t)}</b></div>`;
     const on=(t==="sword"&&b.sword)||(t==="shield"&&b.shield);
@@ -1494,22 +1525,32 @@ function drawItems(){
     return `<button class="itm${on?' on':''}" data-t="${t}" ${on||can?'':'disabled'} aria-label="${ITEMS[t].name}">${itemSVG(t)}<b>${on?'ON':left(t)}</b></button>`;
   }).join("");
 }
-$("bItems").addEventListener("click",e=>{
-  const el=e.target.closest(".itm"); if(!el || !G || G.mode!=="boss") return;
+function showHeal(){
+  const h=$("bHeal"), sym=["✚","✦","✚","♥","✦","✚","✦","♥","✚","✦"];
+  h.innerHTML=sym.map((c,k)=>`<span class="pt" style="left:${6+k*9.3}%;font-size:${16+(k*7)%14}px;animation-delay:${(k*137%500)}ms">${c}</span>`).join("")
+    +`<div class="plus">♥ ＋1</div>`;
+  h.className="heal"; void h.offsetWidth; h.className="heal show";
+}
+const itemClick=e=>{
+  const el=e.target.closest(".itm,.herbbtn"); if(!el || !G || G.mode!=="boss") return;
   const t=el.dataset.t, b=G.boss;
   if(b.over || G.bag[t]-G.used[t]<=0) return;
-  if(t==="herb"){ if(b.hearts>=3) return; b.hearts++; bossMsg(`<span class="gold">やくそうを つかった！</span> ハートが 1つ かいふく した！`); drawBoss(); }
+  if(t==="herb"){ if(b.hearts>=3) return; b.hearts++; b.justHealed=true;
+    bossMsg(`<span class="gold">やくそうを つかった！</span> ハートが 1つ かいふく した！`); drawBoss(); showHeal();
+    G.used[t]++; tone([523,659,784,1047],"sine",.12,.09); drawItems(); return; }
   else if(t==="sword"){ if(b.sword) return; b.sword=true; bossMsg(`<span class="gold">つるぎを そうびした！</span> せいかいの ダメージが ${SWORD_DMG} ふえる！`); }
   else return;
   G.used[t]++; tone([660,990],"sine",.12,.08); drawItems();
-});
+};
+$("bItems").addEventListener("click",itemClick);
+$("bHerb").addEventListener("click",itemClick);
 function drawBoss(){
   const b=G.boss, r=b.hp/b.max;
   $("bHp").style.width=(r*100)+"%";
   $("bHp").style.background = r>0.5 ? "var(--green)" : r>0.25 ? "var(--yellow)" : "var(--red)";
   $("bHpN").textContent=`HP ${b.hp}/${b.max}`;
-  let h=""; for(let k=0;k<3;k++){ const lost=k>=b.hearts; h+=`<span class="${lost?'lost':''}${lost&&k===b.hearts&&b.justLost?' just':''}">♥</span>`; }
-  b.justLost=false;
+  let h=""; for(let k=0;k<3;k++){ const lost=k>=b.hearts; h+=`<span class="${lost?'lost':''}${lost&&k===b.hearts&&b.justLost?' just':''}${!lost&&k===b.hearts-1&&b.justHealed?' healed':''}">♥</span>`; }
+  b.justLost=false; b.justHealed=false;
   $("bHearts").innerHTML=h;
   if(G.used) drawItems();
 }
