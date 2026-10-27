@@ -113,6 +113,29 @@
   .itm.on{border-color:#f5c542;box-shadow:0 0 10px #f5c542;opacity:1}
   .itm.on b{background:#2bb673;color:#fff}
   @media (max-width:600px){ .itm{width:30px;height:30px;padding:2px} .items{gap:3px} }
+  .itm.auto{display:block;cursor:default;margin-top:8px}
+  .itm.auto.has{border-color:#5aa0ff;box-shadow:0 0 8px rgba(90,160,255,.8)}
+  .itm.auto i{position:absolute;left:50%;top:-9px;transform:translateX(-50%);font-style:normal;font-size:9px;font-weight:bold;
+    background:#5aa0ff;color:#fff;border-radius:999px;padding:0 4px;line-height:13px;white-space:nowrap}
+  .itm.auto.pop{animation:pop .5s}
+  /* たてで ふせぐ えんしゅつ */
+  .guard{position:absolute;left:50%;bottom:-4px;width:96px;height:96px;margin-left:-48px;z-index:3;pointer-events:none;opacity:0}
+  .guard svg{width:100%;height:100%;filter:drop-shadow(0 0 10px #8ec5ff)}
+  .guard .spark{position:absolute;left:50%;top:-6px;transform:translateX(-50%) scale(0);font-size:24px;font-weight:bold;color:#fff;
+    white-space:nowrap;text-shadow:0 0 6px #5aa0ff,0 0 12px #5aa0ff,0 2px 0 #1e5bb8}
+  .guard .ring{position:absolute;inset:-6px;border-radius:50%;border:4px solid #bfe0ff;opacity:0}
+  .guard.show{animation:gIn 1.5s ease-out forwards}
+  .guard.show svg{animation:gHit 1.5s ease-out forwards}
+  .guard.show .spark{animation:gSpark 1.5s ease-out forwards}
+  .guard.show .ring{animation:gRing 1.5s ease-out forwards}
+  @keyframes gIn{0%{opacity:0;transform:translateY(40px) scale(.4)}18%{opacity:1;transform:translateY(-6px) scale(1.1)}28%{transform:translateY(0) scale(1)}
+    80%{opacity:1;transform:none}100%{opacity:0;transform:translateY(18px) scale(.85)}}
+  @keyframes gHit{0%,30%{transform:none}36%{transform:translateY(8px) scale(.94);filter:drop-shadow(0 0 22px #fff) brightness(1.8)}
+    46%{transform:translateX(-5px) rotate(-5deg)}56%{transform:translateX(4px) rotate(4deg)}66%{transform:none;filter:drop-shadow(0 0 10px #8ec5ff)}100%{transform:none}}
+  @keyframes gSpark{0%,32%{transform:translateX(-50%) scale(0);opacity:0}40%{transform:translateX(-50%) scale(1.25);opacity:1}
+    75%{transform:translateX(-50%) translateY(-8px) scale(1);opacity:1}100%{transform:translateX(-50%) translateY(-16px);opacity:0}}
+  @keyframes gRing{0%,32%{opacity:0;transform:scale(.6)}38%{opacity:1}70%{opacity:0;transform:scale(1.6)}100%{opacity:0}}
+  @media (max-width:600px){ .guard{width:80px;height:80px;margin-left:-40px} .guard .spark{font-size:20px} }
   #play.easy #bAtkRow{display:none}
   @media (max-width:420px){ .diffsel b{font-size:16px} .diffsel small{font-size:11px} }
   @media (max-width:420px){ .mode .mt{font-size:16px} .mode .ms{font-size:11px} }
@@ -466,7 +489,7 @@
   <div class="bosspanel" id="bossPanel">
     <div class="bp-head"><span class="bp-isl" id="bIsl"></span><div class="hearts" id="bHearts"></div></div>
     <div class="bp-top"><span class="bp-name" id="bName"></span><div class="hp"><i id="bHp"></i></div><span class="hpn" id="bHpN"></span></div>
-    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div></div>
+    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div><div class="guard" id="bGuard"></div></div>
     <div class="atk" id="bAtkRow"><span class="atk-l">こうげき</span><div class="atkbar"><i id="bAtk"></i></div></div>
     <div class="msgwin" id="bMsg"></div>
   </div>
@@ -614,7 +637,7 @@ const dtag=d=>`<span class="dtag" style="--d:${DIFFS[d].c}">${DIFFS[d].name}</sp
 const ITEMS={
   herb:  {name:"やくそう", desc:"ハートを 1つ かいふく"},
   sword: {name:"つるぎ",   desc:"せいかいの ダメージ ＋3"},
-  shield:{name:"たて",     desc:"じかんぎれの こうげきを 1かい ふせぐ"},
+  shield:{name:"たて",     desc:"じかんぎれの こうげきを じどうで 1かい ふせぐ"},
 };
 const STARS=[
   {name:"ごうかく", item:d=>null,   cond:L=>`${STAGE_PASS}もん いじょう せいかい`},   // ごうかくは すすめるのが ごほうび
@@ -1277,7 +1300,9 @@ function start(mode,opt){
     G.boss={hp:max,max,hearts:3,over:null,sword:false,shield:false};
     G.bag=bagOf(loadAdv(opt.d)); G.used={herb:0,sword:0,shield:0};
     $("bName").textContent=I.boss; $("bIsl").textContent=I.name;
-    bossMsg(`${I.boss}が あらわれた！`);
+    const sh = opt.d!=="easy" ? G.bag.shield : 0;
+    bossMsg(`${I.boss}が あらわれた！` + (sh>0 ? `<br><span class="gold">たてが ${sh}こ</span> じかんぎれの こうげきを まもって くれるよ。` : ""));
+    $("bGuard").className="guard";
     $("bMon").className="monster"; $("bMon").innerHTML=monsterSVG(I.type,I.color);
     $("bDmg").className="dmg";
     drawBoss(); drawItems();
@@ -1407,11 +1432,14 @@ function bossTick(){
 function bossAttack(){
   const b=G.boss, mon=$("bMon"), g=G;
   drawAtk(0);
-  if(b.shield){   // たてで 1かい ふせぐ
-    b.shield=false; drawItems();
+  if(G.bag.shield-G.used.shield>0){   // たてが あれば じどうで 1かい ふせぐ
+    G.used.shield++; drawItems();
+    const btn=$("bItems").querySelector('[data-t="shield"]'); if(btn) btn.classList.add("pop");
     mon.className="monster"; void mon.offsetWidth; mon.className="monster atk";
-    tone([520,780,1040],"triangle",.12,.08);
-    bossMsg(`<span class="gold">たてで ${ISLANDS[G.opt.i].boss}の こうげきを ふせいだ！</span> たては こわれた…`);
+    showGuard();
+    tone([1400,1900,1200],"square",.07,.05); setTimeout(()=>tone([520,780,1040],"triangle",.12,.08),260);
+    const n=G.bag.shield-G.used.shield;
+    bossMsg(`<span class="gold">たてで ${ISLANDS[G.opt.i].boss}の こうげきを ふせいだ！</span> ` + (n>0 ? `たては あと ${n}こ。` : "たては こわれた…"));
     b.atk0=performance.now(); b.warned=false; return;
   }
   b.hearts--; b.justLost=true;
@@ -1450,10 +1478,17 @@ function bossMsg(html){
   step(); msgTimer=setInterval(step,30);
 }
 // アイテム ボタン（イージーは じかんぎれの こうげきが ないので たては なし）
+function showGuard(){
+  const g=$("bGuard");
+  g.innerHTML=itemSVG("shield")+'<div class="ring"></div><div class="spark">カキーン！</div>';
+  g.className="guard"; void g.offsetWidth; g.className="guard show";
+}
 function drawItems(){
   const b=G.boss, left=t=>G.bag[t]-G.used[t];
   const list = itemsOf(G.opt.d);
   $("bItems").innerHTML=list.map(t=>{
+    if(t==="shield")   // たては じどうで つかうので おせない（のこりの かずだけ ひょうじ）
+      return `<div class="itm auto${left(t)>0?' has':''}" data-t="shield" role="img" aria-label="たて のこり ${left(t)}こ（じどう）">${itemSVG(t)}<i>じどう</i><b>${left(t)}</b></div>`;
     const on=(t==="sword"&&b.sword)||(t==="shield"&&b.shield);
     const can=!b.over && left(t)>0 && (t==="herb" ? b.hearts<3 : !b[t]);
     return `<button class="itm${on?' on':''}" data-t="${t}" ${on||can?'':'disabled'} aria-label="${ITEMS[t].name}">${itemSVG(t)}<b>${on?'ON':left(t)}</b></button>`;
@@ -1465,7 +1500,7 @@ $("bItems").addEventListener("click",e=>{
   if(b.over || G.bag[t]-G.used[t]<=0) return;
   if(t==="herb"){ if(b.hearts>=3) return; b.hearts++; bossMsg(`<span class="gold">やくそうを つかった！</span> ハートが 1つ かいふく した！`); drawBoss(); }
   else if(t==="sword"){ if(b.sword) return; b.sword=true; bossMsg(`<span class="gold">つるぎを そうびした！</span> せいかいの ダメージが ${SWORD_DMG} ふえる！`); }
-  else { if(b.shield) return; b.shield=true; bossMsg(`<span class="gold">たてを そうびした！</span> じかんぎれの こうげきを 1かい ふせぐよ。`); }
+  else return;
   G.used[t]++; tone([660,990],"sine",.12,.08); drawItems();
 });
 function drawBoss(){
