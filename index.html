@@ -163,6 +163,44 @@
     75%{transform:translateX(-50%) translateY(-8px) scale(1);opacity:1}100%{transform:translateX(-50%) translateY(-16px);opacity:0}}
   @keyframes gRing{0%,32%{opacity:0;transform:scale(.6)}38%{opacity:1}70%{opacity:0;transform:scale(1.6)}100%{opacity:0}}
   @media (max-width:600px){ .guard{width:80px;height:80px;margin-left:-40px} .guard .spark{font-size:20px} }
+  /* ===== ゆうしゃ と こうげきの えんしゅつ ===== */
+  .bp-bot{display:flex;gap:8px;align-items:stretch;margin-top:6px}
+  .bp-bot .msgwin{flex:1;margin-top:0;min-width:0}
+  .bp-bot .herbbtn{position:relative;left:auto;bottom:auto;flex:none;align-self:center}
+  #play.bossmode .monster{margin-left:24%}
+  #play.bossmode .shadow{left:62%;width:140px;margin-left:-70px}
+  #play.bossmode .dmg{left:calc(62% - 44px);top:6px;z-index:4}
+  #play.bossmode .warnmsg{left:calc(24% + 4px);top:0}
+  #play.bossmode .guard{left:calc(24% + 30px);margin-left:-40px;width:80px;height:80px}
+  .bhero{position:absolute;left:calc(24% - 40px);bottom:2px;width:80px;height:93px;z-index:2;animation:heroIdle 1.6s ease-in-out infinite}
+  .bhero svg{width:100%;height:100%}
+  @keyframes heroIdle{50%{transform:translateY(-2px)}}
+  .bhero.enter{animation:heroEnter 1s ease-out}
+  @keyframes heroEnter{0%{opacity:0;transform:translateX(-90px)}15%{opacity:1;transform:translateX(-76px) translateY(-5px)}30%{transform:translateX(-60px)}
+    45%{transform:translateX(-44px) translateY(-5px)}60%{transform:translateX(-28px)}75%{transform:translateX(-14px) translateY(-5px)}100%{opacity:1;transform:none}}
+  .bhero.atk{animation:heroAtk .45s ease-out}
+  @keyframes heroAtk{0%{transform:none}35%{transform:translateX(46px) translateY(-5px) rotate(7deg)}100%{transform:none}}
+  .bhero.hit{animation:heroHit .55s}
+  @keyframes heroHit{0%{transform:none}20%{transform:translateX(-12px) rotate(-9deg);filter:brightness(1.3) drop-shadow(0 0 8px #ff5252)}
+    55%{transform:translateX(4px) rotate(3deg);filter:drop-shadow(0 0 6px #ff5252)}100%{transform:none;filter:none}}
+  .monster.atk{animation:atkL .5s}
+  @keyframes atkL{40%{transform:translateX(-38px) scale(1.15)}100%{transform:none}}
+  .slash{position:absolute;left:calc(62% - 62px);top:50%;margin-top:-62px;width:124px;height:124px;z-index:3;pointer-events:none;opacity:0}
+  .slash svg{width:100%;height:100%;overflow:visible}
+  .slash.show{opacity:1}
+  .slash.crit svg{transform:scale(1.35)}
+  .slash path.s{stroke-dasharray:100;stroke-dashoffset:100;animation:slashDraw .5s ease-out forwards}
+  @keyframes slashDraw{0%{stroke-dashoffset:100;opacity:1}45%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+  .slash .boom{transform-origin:50px 50px;animation:boom .45s ease-out forwards;opacity:0}
+  @keyframes boom{0%{opacity:0;transform:scale(.2)}35%{opacity:1;transform:scale(1.1)}100%{opacity:0;transform:scale(1.4)}}
+  .slash .sp{animation:boom .6s ease-out forwards;opacity:0}
+  #play.bossmode .bosspanel.critfx{animation:critFx .35s}
+  @keyframes critFx{0%{filter:brightness(2.2)}100%{filter:none}}
+  @media (max-width:600px){
+    .bhero{width:68px;height:79px;left:calc(24% - 34px)}
+    #play.bossmode .shadow{width:110px;margin-left:-55px}
+    #play.bossmode .dmg{left:calc(62% - 40px);font-size:28px} #play.bossmode .dmg.crit{font-size:30px}
+    .slash{width:104px;height:104px;margin-top:-52px;left:calc(62% - 52px)} }
   #play.easy #bAtkRow{display:none}
   @media (max-width:420px){ .diffsel b{font-size:16px} .diffsel small{font-size:11px} }
   @media (max-width:420px){ .mode .mt{font-size:16px} .mode .ms{font-size:11px} }
@@ -516,9 +554,9 @@
   <div class="bosspanel" id="bossPanel">
     <div class="bp-head"><span class="bp-isl" id="bIsl"></span><div class="hearts" id="bHearts"></div></div>
     <div class="bp-top"><span class="bp-name" id="bName"></span><div class="hp"><i id="bHp"></i></div><span class="hpn" id="bHpN"></span></div>
-    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="monster" id="bMon"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div><button class="herbbtn" id="bHerb" data-t="herb" aria-label="やくそう"></button><div class="guard" id="bGuard"></div><div class="heal" id="bHeal"></div></div>
+    <div class="bp-mid" id="bMid"><div class="warnmsg">くるぞ！</div><div class="shadow"></div><div class="bhero" id="bHero"></div><div class="monster" id="bMon"></div><div class="slash" id="bSlash"></div><div class="dmg" id="bDmg"></div><div class="items" id="bItems"></div><div class="guard" id="bGuard"></div><div class="heal" id="bHeal"></div></div>
     <div class="atk" id="bAtkRow"><span class="atk-l">こうげき</span><div class="atkbar"><i id="bAtk"></i></div></div>
-    <div class="msgwin" id="bMsg"></div>
+    <div class="bp-bot"><button class="herbbtn" id="bHerb" data-t="herb" aria-label="やくそう"></button><div class="msgwin" id="bMsg"></div></div>
   </div>
   <div class="qbox" id="qbox">
     <div class="q" id="qText"></div>
@@ -1479,14 +1517,21 @@ function start(mode,opt){
     G.boss={hp:max,max,hearts:3,over:null,sword:false,shield:false};
     G.bag=bagOf(loadAdv(opt.d)); G.used={herb:0,sword:0,shield:0};
     $("bName").textContent=I.boss; $("bIsl").textContent=I.name;
-    const sh = opt.d!=="easy" ? G.bag.shield : 0;
-    bossMsg(`${I.boss}が あらわれた！` + (sh>0 ? `<br><span class="gold">たてが ${sh}こ</span> じかんぎれの こうげきを まもって くれるよ。` : ""));
+    const sh = opt.d!=="easy" ? G.bag.shield : 0, g0=G;
+    G.boss.sw=swordTier();
+    $("bHero").innerHTML=heroSVG(); heroAnim("enter");
+    $("bSlash").className="slash";
+    bossMsg("ゆうしゃが あらわれた！");
+    const n0=msgN;
+    setTimeout(()=>{ if(G===g0 && msgN===n0)
+      bossMsg(`${I.boss}が あらわれた！` + (sh>0 ? `<br><span class="gold">たてが ${sh}こ</span> じかんぎれの こうげきを まもって くれるよ。` : "")); },1100);
     $("bGuard").className="guard"; $("bHeal").className="heal";
     $("bMon").className="monster"; $("bMon").innerHTML=monsterSVG(I.type,I.color);
     $("bDmg").className="dmg";
     drawBoss(); drawItems();
   }
   show("play"); nextQ();
+  if(mode==="boss") pauseShift(1100);   // とうじょうの あいだは ゲージを すすめない
   clearInterval(timerId);
   timerId=setInterval(()=>{ if(!G) return; $("pTime").textContent=fmt(performance.now()-G.t0); if(G.mode==="boss") bossTick(); },100);
 }
@@ -1541,7 +1586,7 @@ function judge(){
   $("markSym").textContent= ok ? "○" : "×";
   $("markCor").textContent= ok ? "" : `こたえは ${ans}`;
   $("markCor").style.display= ok ? "none" : "";
-  beep(ok);
+  if(!(ok && G.mode==="boss")) beep(ok);
   if(ok) G.correct++;
   else { G.wrong.push({q,mine:v}); $("qbox").classList.remove("shake"); void $("qbox").offsetWidth; $("qbox").classList.add("shake"); }
   if(G.mode==="boss") bossHit(ok,el);
@@ -1575,16 +1620,17 @@ function bossHit(ok,el){
       : (crit ? `<span class="gold">かいしんの いちげき！</span> ` : "せいかい！ ") + `${nm}に ${dmg}の ダメージ！`);
     d.textContent = crit ? `かいしん！ ${dmg}` : `${dmg}`;
     d.className="dmg"; void d.offsetWidth; d.className="dmg show"+(crit?" crit":"");
+    heroAnim("atk"); showSlash(b.sw,crit); SW_SND[b.sw]();
     mon.className="monster hit";
     if(b.hp<=0) b.over="win";
   }else if(G.opt.d==="hard"){   // ハード：ミスしたら その ばで まけ
     b.hearts=0; b.justLost=true; b.over="lose"; b.miss=true;
-    mon.className="monster atk";
+    mon.className="monster atk"; heroAnim("hit");
     bossMsg(`<span class="red">${ISLANDS[G.opt.i].boss}の こうげき！</span> まちがえたので まけ…`);
     const p=$("play"); p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
   }else{
     b.hearts--; b.justLost=true;
-    mon.className="monster atk";
+    mon.className="monster atk"; heroAnim("hit");
     bossMsg(`<span class="red">${ISLANDS[G.opt.i].boss}の こうげき！</span> ` + (b.hearts<=0 ? "ハートが なくなった…" : "ハートが 1つ へった！"));
     const p=$("play"); p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
     if(b.hearts<=0) b.over="lose";
@@ -1595,7 +1641,7 @@ function bossHit(ok,el){
 const ATK_MS=8000, ATK_MS_HARD=5000, WARN_MS=2000;   // ハードは こうげきが はやい
 function atkLimit(){ return (G.opt.d==="hard" ? ATK_MS_HARD : ATK_MS)*(G.opt.i>=4 ? 1.4 : 1); }
 function drawAtk(r){
-  $("bAtk").style.width=(Math.min(1,r)*100)+"%";
+  $("bAtk").style.width=(Math.max(0,Math.min(1,r))*100)+"%";
   const warn = r>=1-WARN_MS/atkLimit() && r<1;
   $("bAtkRow").classList.toggle("warn",warn);
   $("bMid").classList.toggle("warn",warn);
@@ -1622,7 +1668,7 @@ function bossAttack(){
     b.atk0=performance.now(); b.warned=false; return;
   }
   b.hearts--; b.justLost=true;
-  mon.className="monster"; void mon.offsetWidth; mon.className="monster atk";
+  mon.className="monster"; void mon.offsetWidth; mon.className="monster atk"; heroAnim("hit");
   const p=$("play"); p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
   beep(false);
   bossMsg(`<span class="red">じかんぎれ！ ${ISLANDS[G.opt.i].boss}の こうげき！</span> ` + (b.hearts<=0 ? "ハートが なくなった…" : "ハートが 1つ へった！"));
@@ -1637,10 +1683,50 @@ document.addEventListener("visibilitychange",()=>{
   if(document.hidden) hiddenAt=performance.now();
   else if(hiddenAt){ pauseShift(performance.now()-hiddenAt); hiddenAt=0; }
 });
+// そうびした けん ごとの きりつけ（みためと おとだけ。ダメージは かわらない）
+const SLASH={
+  0:{c:"#ffffff",g:"#ffe082",w:0},
+  1:{c:"#e2b07c",g:"#7d4b28",w:3},
+  2:{c:"#ffd6aa",g:"#d58b4c",w:4},
+  3:{c:"#ffffff",g:"#8e9aa8",w:5},
+  4:{c:"#ffffff",g:"#8ec5ff",w:6},
+  5:{c:"#fff7c2",g:"#f2c230",w:7},
+  6:{c:"#e8f9ff",g:"#3fc2ff",w:7,n:2},
+  7:{c:"#fffbe0",g:"#ffb300",w:8,x:true},
+};
+const SW_SND={
+  0:()=>tone([220,150],"square",.09,.05),                     // ポコッ（すで）
+  1:()=>tone([300,210],"triangle",.2,.04),                    // ポコッ（きの けん）
+  2:()=>tone([760,560],"triangle",.13,.04),
+  3:()=>tone([1250,1700],"square",.055,.03),                  // キンッ
+  4:()=>tone([1500,2100],"square",.055,.03),
+  5:()=>tone([900,1350,1800],"sawtooth",.045,.035),
+  6:()=>tone([1000,1500,2200,2900],"sine",.11,.035),          // シャキーン
+  7:()=>tone([1046,1568,2093,2637,3136],"sine",.11,.035),
+};
+const swordTier=()=>{ const P=eqParts().right; return P ? P.t : 0; };
+function showSlash(t,crit){
+  const S=SLASH[t], el=$("bSlash");
+  const line=(d,delay)=>`<path class="s" d="${d}" pathLength="100" fill="none" stroke="${S.g}" stroke-width="${S.w*2.6}" stroke-linecap="round" opacity=".5" style="animation-delay:${delay}ms"/>
+    <path class="s" d="${d}" pathLength="100" fill="none" stroke="${S.c}" stroke-width="${S.w}" stroke-linecap="round" style="animation-delay:${delay}ms"/>`;
+  let h="";
+  if(t>0){
+    h+=line("M14 20 Q50 40 86 80",0);
+    if(S.n===2) h+=line("M8 38 Q42 56 74 92",90);
+    if(S.x) h+=line("M86 20 Q50 40 14 80",120);
+  }
+  const r = t===0 ? 16 : 10;
+  h+=`<g class="boom" style="animation-delay:${t===0?0:140}ms"><polygon points="${[...Array(16)].map((_,k)=>{const a=k*Math.PI/8, R=k%2?r*.45:r; return `${50+R*Math.cos(a)},${50+R*Math.sin(a)}`;}).join(" ")}" fill="${S.c}" stroke="${S.g}" stroke-width="1.5"/></g>`;
+  if(t>=6) h+=[[22,30,4],[80,46,3],[60,84,3.4],[34,70,2.6]].map(([x,y,z],k)=>`<g class="sp" style="animation-delay:${160+k*60}ms;transform-origin:${x}px ${y}px">${spark(x,y,z,k%2?"#fff":S.g)}</g>`).join("");
+  el.innerHTML=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${h}</svg>`;
+  el.className="slash"; void el.offsetWidth; el.className="slash show"+(crit?" crit":"");
+  if(crit){ const p=$("bossPanel"); p.classList.remove("critfx"); void p.offsetWidth; p.classList.add("critfx"); }
+}
+function heroAnim(c){ const h=$("bHero"); h.className="bhero"; void h.offsetWidth; h.className="bhero "+c; }
 // メッセージウィンドウ（1もじずつ ひょうじ）
-let msgTimer=null;
+let msgTimer=null, msgN=0;
 function bossMsg(html){
-  clearInterval(msgTimer);
+  clearInterval(msgTimer); msgN++;
   const el=$("bMsg"), parts=html.split(/(<[^>]+>)/);   // タグは そのまま、もじだけ じゅんばんに
   let shown="", pi=0, ci=0;
   const step=()=>{
