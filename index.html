@@ -581,10 +581,12 @@ const ITEMS={
   shield:{name:"たて",     desc:"じかんぎれの こうげきを 1かい ふせぐ"},
 };
 const STARS=[
-  {name:"ごうかく", item:"herb",   cond:L=>`${STAGE_PASS}もん いじょう せいかい`},
-  {name:"ノーミス", item:"sword",  cond:L=>`${STAGE_N}もん ぜんぶ せいかい`},
-  {name:"スピード", item:"shield", cond:L=>`1もん ${SPEED[L.id]}びょう いないで ごうかく`},
+  {name:"ごうかく", item:d=>null,   cond:L=>`${STAGE_PASS}もん いじょう せいかい`},   // ごうかくは すすめるのが ごほうび
+  {name:"ノーミス", item:d=>"herb", cond:L=>`${STAGE_N}もん ぜんぶ せいかい`},
+  {name:"スピード", item:d=>d==="easy"?"sword":"shield", cond:L=>`ごうかくして 1もん ${SPEED[L.id]}びょう`},
 ];
+// なんいどごとに つかう アイテム（イージーは じかんぎれの こうげきが ないので たての かわりに つるぎ）
+const itemsOf=d=>d==="easy" ? ["herb","sword"] : ["herb","shield"];
 const SWORD_DMG=3;
 const starsOf=(A,k)=>(A.st&&A.st[k])||0;
 const bagOf=A=>Object.assign({herb:0,sword:0,shield:0},A.bag||{});
@@ -605,7 +607,7 @@ function itemSVG(t){
   return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">${v}</svg>`;
 }
 const ico=t=>`<span class="ico">${itemSVG(t)}</span>`;
-const bagHtml=(b,only)=>Object.keys(ITEMS).filter(t=>!only||only.includes(t)).map(t=>`${ico(t)}×${b[t]}`).join("　");
+const bagHtml=(b,d)=>itemsOf(d).map(t=>`${ico(t)}×${b[t]}`).join("　");
 const loadB=()=>{ const b=lsGet(BKEY,{got:{},total:0}); b.got=b.got||{}; b.total=b.total||0; return b; };
 const saveB=b=>lsSet(BKEY,b);
 function better(n,o){ return !o || n.c>o.c || (n.c===o.c && n.t<o.t); }
@@ -817,7 +819,7 @@ $("diffSel").addEventListener("click",e=>{
 function renderMap(){
   const d=curDiff(), A=loadAdv(d), pos=A.pos, done=pos>=TOTAL, curI=Math.min(ISLANDS.length-1,Math.floor(pos/STEPS));
   $("mapDiff").textContent=DIFFS[d].name; $("mapDiff").style.setProperty("--d",DIFFS[d].c);
-  $("bagLine").innerHTML=`<span class="bl">もちもの</span>`+Object.keys(ITEMS).map(t=>`<span>${ico(t)}<span class="inm"> ${ITEMS[t].name}</span>×${bagOf(A)[t]}</span>`).join("");
+  $("bagLine").innerHTML=`<span class="bl">もちもの</span>`+itemsOf(d).map(t=>`<span>${ico(t)}<span class="inm"> ${ITEMS[t].name}</span>×${bagOf(A)[t]}</span>`).join("");
   // つぎの もくひょう
   if(done){
     $("goal").innerHTML=`<div class="goal" style="--c:#ffc53d"><div class="gi">${heroSVG()}</div>
@@ -880,9 +882,9 @@ function openStart(i,s){
   };
   const m=starsOf(A,k), bag=bagOf(A);
   $("ovDesc").innerHTML = (boss ? BOSS_DESC[d]
-        + `<br><span class="stlist">もちもの　${bagHtml(bag, d==="easy"?["herb","sword"]:null)}</span>`
+        + `<br><span class="stlist">もちもの　${bagHtml(bag,d)}</span>`
       : `${STAGE_N}もん。${STAGE_PASS}もん いじょう せいかいで<br>コマが 1マス すすむ！`
-        + `<br><span class="stlist">` + STARS.map((S,b)=>`<span class="s ${m>>b&1?'on':''}">★</span>${ico(S.item)} <b>${S.name}</b>　${S.cond(LEVELS[i])}`).join("<br>") + `</span>`)
+        + `<br><span class="stlist">` + STARS.map((S,b)=>`<span class="s ${m>>b&1?'on':''}">★</span>${S.item(d)?ico(S.item(d)):'<span class="ico"></span>'} <b>${S.name}</b>　${S.cond(LEVELS[i])}`).join("<br>") + `</span>`)
     + (k<A.pos ? `<br><span class="done">（クリアずみ。もういちど あそべるよ）</span>` : "");
   $("ovGo").textContent = boss ? "たたかう！" : "スタート！";
   $("ovGo").onclick=()=>{ $("ov").classList.remove("show"); start(boss?"boss":"stage",{i,s,d}); };
@@ -1257,7 +1259,7 @@ function bossMsg(html){
 // アイテム ボタン（イージーは じかんぎれの こうげきが ないので たては なし）
 function drawItems(){
   const b=G.boss, left=t=>G.bag[t]-G.used[t];
-  const list = G.opt.d==="easy" ? ["herb","sword"] : ["herb","sword","shield"];
+  const list = itemsOf(G.opt.d);
   $("bItems").innerHTML=list.map(t=>{
     const on=(t==="sword"&&b.sword)||(t==="shield"&&b.shield);
     const can=!b.over && left(t)>0 && (t==="herb" ? b.hearts<3 : !b[t]);
@@ -1323,7 +1325,7 @@ function finish(){
     const A=loadAdv(G.opt.d), old=starsOf(A,k);
     const now=(pass?1:0) | (G.correct===n?2:0) | (pass && t/n<=SPEED[Lv.id]*1000 ? 4:0);
     const gain=now & ~old, bag=bagOf(A), got=[];
-    STARS.forEach((S,b)=>{ if(gain>>b&1){ bag[S.item]++; got.push(S); } });
+    STARS.forEach((S,b)=>{ const t=S.item(G.opt.d); if(t && gain>>b&1){ bag[t]++; got.push({S,t}); } });
     A.st=Object.assign({},A.st,{[k]:old|now}); A.bag=bag;
     if(pass && A.pos===k){ A.pos++; A.moved=k; moved=true; }
     saveAdv(A,G.opt.d);
@@ -1331,7 +1333,7 @@ function finish(){
     $("rStars").innerHTML=`<div class="rstars">`+[0,1,2].map(b=>`<span class="${m>>b&1?'on':''}${gain>>b&1?' new':''}">★</span>`).join("")
       +`<small>`+STARS.map((S,b)=>`${m>>b&1?'★':'☆'}${S.name}`).join("　")+`</small></div>`;
     $("rItems").innerHTML = got.length ? `<div class="getitems"><div class="ttl">アイテムを ゲット！</div><div class="row">`+
-      got.map(S=>`<div class="icard">${ico(S.item)}<b>${ITEMS[S.item].name}</b><small>${S.name}の ほし</small><small>${ITEMS[S.item].desc}</small></div>`).join("")+`</div></div>` : "";
+      got.map(({S,t})=>`<div class="icard">${ico(t)}<b>${ITEMS[t].name}</b><small>${S.name}の ほし</small><small>${ITEMS[t].desc}</small></div>`).join("")+`</div></div>` : "";
     if(!(m&4) && pass) note=`1もん ${SPEED[Lv.id]}びょう いないで ぜんぶ こたえると スピードの ほしが もらえるよ。`;
     newB=awardBadges([],G.correct);
     title=`ステージ ${i+1}-${s+1}`; art=heroSVG();
@@ -1342,7 +1344,7 @@ function finish(){
   else { // boss
     const i=G.opt.i, I=ISLANDS[i], win=G.boss.over==="win", k=idx(i,STEPS-1), last=i===ISLANDS.length-1;
     const d=G.opt.d, ids=[]; let moved=false, unlocked=false;
-    const nodmg = win && G.boss.hearts===3;
+    const nodmg = win && d!=="easy" && G.boss.hearts===3;
     if(win){
       ids.push(`B${i}`);
       if(nodmg) ids.push("nodmg");
