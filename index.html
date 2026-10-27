@@ -162,7 +162,7 @@
 
   /* マップ */
   .maphead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .maphead h2{margin:0;font-size:24px;flex:1;text-align:center;padding-right:84px}
+  .maphead h2{margin:0;font-size:24px;flex:1;text-align:center}
   .back{background:#fff;border:2px solid var(--line);border-radius:12px;padding:6px 12px;font-size:15px;color:var(--sub);white-space:nowrap}
   #goal{position:sticky;top:8px;z-index:5;margin-bottom:10px}
   .goal{display:flex;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:10px 14px;
@@ -362,7 +362,34 @@
   .note{font-size:13px;color:var(--sub);margin-top:8px}
 
   /* バッヂ */
-  .badgebtn{display:block;margin:0 auto 14px;background:#fff6dc;border:3px solid var(--yellow);color:#8a6200;
+  .hbtns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:0 auto 14px}
+  .eqbtn{display:flex;align-items:center;gap:4px;background:#eef4ff;border:3px solid var(--blue);color:#1e5bb8;
+    font-size:18px;font-weight:bold;border-radius:999px;padding:2px 18px 2px 8px}
+  .eqbtn .eqi{width:34px;height:38px}
+  .bd .bp{font-size:11px;color:#1e5bb8;margin-top:4px;line-height:1.3;background:#eef4ff;border-radius:8px;padding:2px 4px}
+  .bd.off .bp{color:#b0a895;background:#f4efe6}
+  /* そうび */
+  .eqtop{position:sticky;top:0;z-index:3;background:var(--bg);padding-bottom:6px}
+  .eqhero{width:150px;height:170px;margin:0 auto;background:radial-gradient(circle at 50% 60%,#fff 0 55%,transparent 56%)}
+  .eqhero svg{width:100%;height:100%}
+  @media (max-width:420px){ .eqhero{width:112px;height:126px} .badgebtn{font-size:15px!important;padding:8px 12px!important}
+    .eqbtn{font-size:15px;padding:2px 12px 2px 6px} .eqbtn .eqi{width:28px;height:32px}
+    .maphead h2{font-size:18px!important} .maphead .dtag{font-size:12px;padding:1px 7px;margin-left:4px} }
+  .eqs{background:#fff;border-radius:18px;padding:10px 12px;margin-bottom:10px;box-shadow:0 3px 0 var(--line)}
+  .eqh{font-weight:bold;font-size:17px;margin-bottom:6px}
+  .eqh small{font-weight:normal;color:var(--sub);font-size:13px;margin-left:6px}
+  .eqg{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+  .eqp{background:#faf6ee;border:3px solid transparent;border-radius:14px;padding:6px 4px;font-size:12px;font-weight:bold;
+    color:var(--ink);line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
+  .eqp .pi{width:54px;height:54px;margin:0 auto 2px;display:flex;align-items:center;justify-content:center}
+  .eqp .pi svg{width:100%;height:100%}
+  .eqp.on{border-color:var(--blue);background:#eaf2ff}
+  .eqp.off{color:#b0a895;font-weight:normal;cursor:default}
+  .eqp.off .pi{font-size:30px;font-weight:bold;color:#d6cbb5}
+  .eqp.none .pi{font-size:22px;color:var(--sub)}
+  .getparts{margin-top:8px;font-size:16px;font-weight:bold;color:#1e5bb8}
+  .getparts button{margin-left:6px;font-size:15px;font-weight:bold;background:#eef4ff;border:2px solid var(--blue);color:#1e5bb8;border-radius:999px;padding:3px 12px}
+  .badgebtn{display:block;margin:0;background:#fff6dc;border:3px solid var(--yellow);color:#8a6200;
     font-size:18px;font-weight:bold;border-radius:999px;padding:8px 22px}
   .bsec{margin:14px 0 6px;font-size:18px;font-weight:bold;color:var(--c,var(--ink))}
   .bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -387,7 +414,7 @@
 <!-- ===== ホーム ===== -->
 <section id="home" class="screen active">
   <h1><span>たす</span><b>ひく</b>チャレンジ</h1>
-  <button class="badgebtn" id="badgeBtn"></button>
+  <div class="hbtns"><button class="badgebtn" id="badgeBtn"></button><button class="eqbtn" id="eqBtn"><span class="eqi" id="eqBtnArt"></span>そうび</button></div>
   <div class="modes" id="modes">
     <button class="mode" data-m="pr" style="--m:var(--green)"><span class="st">1</span><span class="mt">れんしゅう</span><span class="ms">5もん・そろばん</span></button>
     <button class="mode" data-m="ch" style="--m:var(--blue)"><span class="st">2</span><span class="mt">チャレンジ</span><span class="ms">10・20もん</span></button>
@@ -419,7 +446,7 @@
 
 <!-- ===== ぼうけんマップ ===== -->
 <section id="map" class="screen">
-  <div class="maphead"><button class="back" id="mapBack">◀ もどる</button><h2>ぼうけんマップ<span class="dtag" id="mapDiff"></span></h2></div>
+  <div class="maphead"><button class="back" id="mapBack">◀ もどる</button><h2>ぼうけんマップ<span class="dtag" id="mapDiff"></span></h2><button class="back" id="mapEq">そうび</button></div>
   <div id="goal"></div>
   <div class="bagline" id="bagLine"></div>
   <div class="mapmsg" id="mapMsg"></div>
@@ -462,6 +489,15 @@
 </section>
 
 <!-- ===== バッヂ ===== -->
+<section id="equip" class="screen">
+  <div class="eqtop">
+    <div class="maphead"><button class="back" id="eqBack">◀ もどる</button><h2>そうび</h2><span style="width:70px"></span></div>
+    <div class="eqhero" id="eqHero"></div>
+    <p class="mlead" id="eqCount"></p>
+  </div>
+  <div id="eqSlots"></div>
+</section>
+
 <section id="badges" class="screen">
   <h1>バッヂ</h1>
   <p class="total" id="bTotal"></p>
@@ -613,18 +649,57 @@ const saveB=b=>lsSet(BKEY,b);
 function better(n,o){ return !o || n.c>o.c || (n.c===o.c && n.t<o.t); }
 
 /* ================= イラスト（SVG） ================= */
-function heroSVG(){
-  return `<svg viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+// eq：{head, body, right, left, back} に パーツの id（しょうりゃく すると いまの そうび）
+function heroSVG(eq){
+  const P=eqParts(eq), part=k=>P[k]?partSVG(P[k]):"";
+  return `<svg viewBox="-4 -5 48 54" xmlns="http://www.w3.org/2000/svg">
   <ellipse cx="20" cy="46" rx="11" ry="2.5" fill="rgba(0,0,0,.18)"/>
-  <path d="M9 27 Q20 22 31 27 L34 44 L6 44Z" fill="#ef5350"/>
+  ${P.back ? part("back") : `<path d="M9 27 Q20 22 31 27 L34 44 L6 44Z" fill="#ef5350"/>`}
   <rect x="11" y="25" width="18" height="18" rx="7" fill="#3d8bfd"/>
+  ${part("body")}
   <circle cx="20" cy="15" r="11.5" fill="#ffdcbc"/>
   <path d="M8.5 14 Q9 2 20 2.5 Q31 2 31.5 14 Q26 8 20 9 Q13 8 8.5 14Z" fill="#5a3b26"/>
   <rect x="8" y="9.5" width="24" height="3.5" rx="1.7" fill="#ffc53d"/>
   <circle cx="16" cy="16.5" r="1.8" fill="#2b2622"/><circle cx="24" cy="16.5" r="1.8" fill="#2b2622"/>
   <path d="M16.5 20.5 Q20 23.5 23.5 20.5" stroke="#2b2622" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  ${part("head")}${part("right")}${part("left")}
   </svg>`;
 }
+// パーツ 1つぶんの え（ゆうしゃと おなじ ざひょう）
+function partSVG(P){
+  const O='stroke="rgba(0,0,0,.3)" stroke-width="1"';
+  switch(P.kind){
+    case "helm": return `<path d="M7.5 14.5 Q7.5 1 20 1 Q32.5 1 32.5 14.5 L29.5 14.5 Q29 9.5 20 9.5 Q11 9.5 10.5 14.5Z" fill="${P.c}" ${O}/>
+      <rect x="8.2" y="8.6" width="23.6" height="2.6" rx="1.3" fill="#fff" opacity=".45"/>
+      <path d="M20 1.2 Q21 -3.5 26.5 -3.8 Q23 -1.5 22 2Z" fill="${P.c}" ${O}/>`;
+    case "crown": return `<polygon points="9.5,10 10.5,1.5 15.2,6 20,-1.5 24.8,6 29.5,1.5 30.5,10" fill="#ffc53d" stroke="#b07d00" stroke-width="1" stroke-linejoin="round"/>
+      <circle cx="20" cy="5.5" r="1.6" fill="#ef5350"/><circle cx="13.5" cy="7.5" r="1.1" fill="#3d8bfd"/><circle cx="26.5" cy="7.5" r="1.1" fill="#2bb673"/>`;
+    case "armor": return `<circle cx="11.5" cy="27.5" r="4.2" fill="${P.c}" ${O}/><circle cx="28.5" cy="27.5" r="4.2" fill="${P.c}" ${O}/>
+      <rect x="11" y="25" width="18" height="18" rx="6.5" fill="${P.c}" ${O}/>
+      <path d="M14.5 28.5 H25.5 V34 Q20 38.5 14.5 34Z" fill="#fff" opacity=".4"/>
+      <rect x="11" y="37.5" width="18" height="2.6" fill="rgba(0,0,0,.22)"/>
+      ${P.star?`<polygon points="20,29.3 21.2,32 24,32.2 21.8,34 22.6,36.8 20,35.2 17.4,36.8 18.2,34 16,32.2 18.8,32" fill="#fff"/>`:""}`;
+    case "sword": return `${P.glow?`<rect x="30.2" y="5" width="7" height="28" rx="3.5" fill="#fff59d" opacity=".7"/>`:""}
+      <path d="M32 31 V9.5 L33.7 6.5 L35.4 9.5 V31Z" fill="${P.glow?'#fff8d6':'#e3eaef'}" stroke="${P.glow?'#c9a000':'#78909c'}" stroke-width=".9" stroke-linejoin="round"/>
+      <rect x="29" y="30.6" width="9.4" height="2.8" rx="1.2" fill="${P.c}" ${O}/>
+      <rect x="32.4" y="33.4" width="2.6" height="6" fill="#8d6e63"/>
+      <circle cx="33.7" cy="40.4" r="1.7" fill="${P.c}" ${O}/>
+      <circle cx="33.7" cy="36" r="2.6" fill="#ffdcbc" stroke="rgba(0,0,0,.2)" stroke-width=".8"/>`;
+    case "shield": {
+      const I=ISLANDS[P.i], mon=monsterSVG(I.type,I.color).replace("<svg ",`<svg x="-1.6" y="26.4" width="16.2" height="16.2" `);
+      return `<circle cx="6.5" cy="34.5" r="9" fill="#fff8ec" stroke="${I.color}" stroke-width="2.4"/>
+      <circle cx="6.5" cy="34.5" r="9" fill="none" stroke="rgba(0,0,0,.25)" stroke-width=".8"/>${mon}`; }
+    case "cape": {
+      const mk = P.mark==="heart" ? (x=>`<path d="M${x} 41.5 l-2.4-2.4 a1.5 1.5 0 0 1 2.4-1.9 a1.5 1.5 0 0 1 2.4 1.9z" fill="#fff"/>`)
+               : P.mark==="star" ? (x=>`<circle cx="${x}" cy="39.5" r="1.6" fill="#fff"/>`) : (x=>"");
+      return `<path d="M8.5 25.5 Q20 19.5 31.5 25.5 L37.5 45.5 L2.5 45.5Z" fill="${P.c}" ${O}/>
+      <path d="M8.5 25.5 Q20 19.5 31.5 25.5 L32.5 29 Q20 23 7.5 29Z" fill="#fff" opacity=".3"/>${mk(6)}${mk(34)}`; }
+  }
+  return "";
+}
+// パーツ だけの え（そうび がめんの アイコン）
+const PART_VB={head:"6 -5 28 21", body:"5 21 30 24", right:"26 4 16 40", left:"-4 24 21 21", back:"1 18 38 29"};
+const partIcon=P=>`<svg viewBox="${PART_VB[P.slot]}" xmlns="http://www.w3.org/2000/svg">${partSVG(P)}</svg>`;
 function monsterSVG(type,color,sil){
   const B = sil ? "#5b564d" : color, D="rgba(0,0,0,.28)", INK="#2b2622";
   const acc = c => sil ? B : c;
@@ -702,7 +777,8 @@ const ALLB=[...LEVELS.flatMap(levelBadges),...ADVB,...SPECIAL];
 function medal(b,on){ return `<div class="medal ${on?'':'off'}" style="--c:${b.c};--ring:${b.ring}">${on?b.label:'？'}</div>`; }
 function badgeCard(b,on){
   const nm = (!on && b.secret) ? "？？？" : b.name;
-  return `<div class="bd ${on?'':'off'}">${medal(b,on)}<div class="bn">${nm}</div><div class="bc">${b.desc}</div></div>`;
+  const P=partOf(b.id), pn = P ? `<div class="bp">そうび：${(!on && b.secret) ? "？？？" : P.name}</div>` : "";
+  return `<div class="bd ${on?'':'off'}">${medal(b,on)}<div class="bn">${nm}</div><div class="bc">${b.desc}</div>${pn}</div>`;
 }
 // ids：あたらしく もらえる かもしれない バッヂ、add：せいかい数の かさん
 function awardBadges(ids,add){
@@ -716,7 +792,59 @@ function awardBadges(ids,add){
   all.forEach(give);
   if(LEVELS.flatMap(levelBadges).every(b=>B.got[b.id])) give("master");
   saveB(B);
+  autoEquip(out);
   return out;
+}
+/* ================= そうび（みためだけ。つよさは かわらない） ================= */
+// バッヂ 1つで パーツが 1つ もらえる
+const EKEY="tasuhiku-equip-v1";
+const SLOTS=[
+  {k:"head", name:"あたま"}, {k:"body", name:"からだ"}, {k:"right",name:"けん"},
+  {k:"left", name:"たて"},   {k:"back", name:"マント"},
+];
+const PARTS=[
+  ...LEVELS.map((L,n)=>({id:`h${L.id}`, slot:"head",  badge:`L${L.id}c`, name:`レベル${L.id}の かぶと`, kind:"helm",  c:ISLANDS[n].color})),
+  {id:"crown", slot:"head",  badge:"x20",    name:"きんの おうかん",   kind:"crown"},
+  ...LEVELS.map((L,n)=>({id:`a${L.id}`, slot:"body",  badge:`L${L.id}p`, name:`レベル${L.id}の よろい`, kind:"armor", c:ISLANDS[n].color})),
+  {id:"legend",slot:"body",  badge:"legend", name:"でんせつの よろい",  kind:"armor", c:"#ffc53d", star:true},
+  ...LEVELS.map((L,n)=>({id:`w${L.id}`, slot:"right", badge:`L${L.id}s`, name:`レベル${L.id}の けん`,   kind:"sword", c:ISLANDS[n].color})),
+  {id:"master",slot:"right", badge:"master", name:"マスターの けん",   kind:"sword", c:"#ffc53d", glow:true},
+  ...ISLANDS.map((I,i)=>({id:`s${i}`, slot:"left", badge:`B${i}`, name:`${I.boss}の たて`, kind:"shield", i})),
+  {id:"c100",  slot:"back",  badge:"t100",   name:"あおい マント",     kind:"cape",  c:"#3d8bfd"},
+  {id:"c500",  slot:"back",  badge:"t500",   name:"ぎんの マント",     kind:"cape",  c:"#b8c1cc"},
+  {id:"c1000", slot:"back",  badge:"t1000",  name:"きんの マント",     kind:"cape",  c:"#ffc53d", mark:"star"},
+  {id:"cheart",slot:"back",  badge:"nodmg",  name:"ハートの マント",   kind:"cape",  c:"#ff6f91", mark:"heart"},
+];
+const partOf=badgeId=>PARTS.find(P=>P.badge===badgeId);
+const loadEq=()=>lsGet(EKEY,{}), saveEq=e=>lsSet(EKEY,e);
+// もっている パーツだけ つかう（きろくを けしたとき など）
+function eqParts(eq){
+  const e=eq||loadEq(), got=loadB().got, out={};
+  SLOTS.forEach(({k})=>{ const P=PARTS.find(x=>x.id===e[k]); if(P && P.slot===k && got[P.badge]) out[k]=P; });
+  return out;
+}
+let eqFrom="home";
+function openEquip(from){ eqFrom=from; renderEquip(); show("equip"); }
+function renderEquip(){
+  const got=loadB().got, eq=eqParts();
+  $("eqHero").innerHTML=heroSVG();
+  $("eqCount").textContent=`もっている そうび ${PARTS.filter(P=>got[P.badge]).length} / ${PARTS.length}　｜　バッヂを あつめると ふえるよ`;
+  $("eqSlots").innerHTML=SLOTS.map(S=>{
+    const list=PARTS.filter(P=>P.slot===S.k);
+    return `<div class="eqs"><div class="eqh">${S.name}<small>${list.filter(P=>got[P.badge]).length} / ${list.length}</small></div><div class="eqg">
+      <button class="eqp none ${eq[S.k]?'':'on'}" data-slot="${S.k}" data-id=""><div class="pi">なし</div>はずす</button>`+
+      list.map(P=>{
+        const own=!!got[P.badge], b=ALLB.find(x=>x.id===P.badge);
+        if(!own) return `<button class="eqp off" data-off="1"><div class="pi">？</div>${b.secret?'？？？':`「${b.label.startsWith('Lv')?b.label+' ':''}${b.name}」`}<br>バッヂで もらえる</button>`;
+        return `<button class="eqp ${eq[S.k]===P?'on':''}" data-slot="${S.k}" data-id="${P.id}"><div class="pi">${partIcon(P)}</div>${P.name}</button>`;
+      }).join("")+`</div></div>`;
+  }).join("");
+}
+// あたらしい パーツは あいている ところに じどうで そうび
+function autoEquip(badges){
+  const E=loadEq(), cur=eqParts(E); let ch=false;
+  badges.forEach(b=>{ const P=partOf(b.id); if(P && !cur[P.slot]){ E[P.slot]=P.id; cur[P.slot]=P; ch=true; } });
+  if(ch) saveEq(E);
 }
 function freeBadgeIds(L,n,correct,t){
   const ids=[`L${L.id}c`];
@@ -780,7 +908,7 @@ $("countSel").addEventListener("click",e=>{
 
 function renderHome(){
   const rec=loadRec(), A=loadAdv();
-  $("abArt").innerHTML=heroSVG();
+  $("abArt").innerHTML=heroSVG(); $("eqBtnArt").innerHTML=heroSVG();
   const D=DIFFS[curDiff()];
   $("abSub").textContent = D.name+"　" + (A.pos>=TOTAL ? "ぜんぶの しまを クリア！" :
     `いま：${Math.floor(A.pos/STEPS)+1}つめの しま（${ISLANDS[Math.floor(A.pos/STEPS)].name}）`);
@@ -1380,8 +1508,9 @@ function finish(){
   $("rTime").innerHTML=tm;
   $("rMsg").textContent=msg;
   $("rBadges").innerHTML = newB.length ? `<div class="gotb"><div class="ttl">あたらしい バッヂを ゲット！</div><div class="row">`+
-      newB.map(b=>badgeCard(b,true)).join("")+`</div></div>` : "";
+      newB.map(b=>badgeCard(b,true)).join("")+`</div><div class="getparts">あたらしい そうびも てに いれた！<button id="rEq">きがえる</button></div></div>` : "";
   $("rNote").textContent=note;
+  if($("rEq")) $("rEq").onclick=()=>openEquip(G && G.origin==="adv" ? "map" : "home");
   if(G.wrong.length){
     $("rWrongs").innerHTML = `<h3>まちがえた もんだい</h3><ul>` + G.wrong.map(w=>
       `<li>${plainOf(w.q)} → <s>${w.mine}</s>　<b>${answerOf(w.q)}</b></li>`).join("") + `</ul>`;
@@ -1441,11 +1570,21 @@ $("advReset").addEventListener("click",()=>{
   if(confirm(`${DIFFS[d].name}の ぼうけんを さいしょから やりなおしますか？（バッヂと ほかの なんいどは のこります）`)){ saveAdv({pos:0},d); openMap(); }
 });
 $("resetBtn").addEventListener("click",()=>{
-  if(confirm("この たんまつの きろく・バッヂ・ぼうけんを ぜんぶ けしますか？")){
-    try{ [KEY,BKEY,AKEY].forEach(k=>localStorage.removeItem(k)); }catch(e){}
+  if(confirm("この たんまつの きろく・バッヂ・ぼうけん・そうびを ぜんぶ けしますか？")){
+    try{ [KEY,BKEY,AKEY,EKEY].forEach(k=>localStorage.removeItem(k)); }catch(e){}
     renderHome();
   }
 });
+
+// そうび
+$("eqSlots").addEventListener("click",e=>{
+  const b=e.target.closest(".eqp[data-slot]"); if(!b) return;
+  const E=loadEq(); E[b.dataset.slot]=b.dataset.id||null; saveEq(E);
+  tone([660,990],"sine",.08,.05); renderEquip();
+});
+$("eqBack").addEventListener("click",()=>{ eqFrom==="map" ? openMap() : goHome(); });
+$("eqBtn").addEventListener("click",()=>openEquip("home"));
+$("mapEq").addEventListener("click",()=>openEquip("map"));
 
 renderHome();
 </script>
