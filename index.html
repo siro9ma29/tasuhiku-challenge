@@ -113,7 +113,7 @@
   .itm.on{border-color:#f5c542;box-shadow:0 0 10px #f5c542;opacity:1}
   .itm.on b{background:#2bb673;color:#fff}
   @media (max-width:600px){ .itm{width:30px;height:30px;padding:2px} .items{gap:3px} }
-  #play.easy #bHearts,#play.easy #bAtkRow{display:none}
+  #play.easy #bAtkRow{display:none}
   @media (max-width:420px){ .diffsel b{font-size:16px} .diffsel small{font-size:11px} }
   @media (max-width:420px){ .mode .mt{font-size:16px} .mode .ms{font-size:11px} }
 
@@ -554,7 +554,7 @@ function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){}
 const loadRec=()=>lsGet(KEY,{}), saveRec=r=>lsSet(KEY,r);
 // ぼうけんは なんいどごとに すすみを わけて ほぞん。むかしの データ（{pos}）は ノーマルに うつす
 const DIFFS={
-  easy:  {name:"イージー", c:"#2bb673", s:"ボスの こうげき なし"},
+  easy:  {name:"イージー", c:"#2bb673", s:"じかんの こうげき なし"},
   normal:{name:"ノーマル", c:"#3d8bfd", s:"ボスの こうげき あり"},
   hard:  {name:"ハード",   c:"#ef5350", s:"ミスしたら まけ"},
 };
@@ -874,13 +874,13 @@ function openStart(i,s){
   $("ovSub").textContent = `${I.name}　｜　` + (!boss || d==="easy" ? LEVELS[i].name
       : i===ISLANDS.length-1 ? "ぜんぶの もんだいが まざるよ" : "これまでの もんだいが まざるよ");
   const BOSS_DESC={
-    easy:  `ボスは こうげき してこないよ。<br>${LEVELS[i].name}の もんだいだけ でるよ。<br>はやく こたえると だいダメージ！`,
+    easy:  `ハートは 3つ。まちがえると へるよ。<br>じかんが たっても こうげき してこないよ。<br>${LEVELS[i].name}の もんだいだけ でるよ。`,
     normal:`ハートは 3つ。まちがえると へるよ。<br>じかんが たつと ボスが こうげきしてくる！<br>はやく こたえると だいダメージ！`,
     hard:  `<span class="red">1かいでも まちがえたら まけ！</span><br>ボスの こうげきが はやいよ。ハートは 3つ。<br>はやく こたえると だいダメージ！`,
   };
   const m=starsOf(A,k), bag=bagOf(A);
   $("ovDesc").innerHTML = (boss ? BOSS_DESC[d]
-        + `<br><span class="stlist">もちもの　${bagHtml(bag, d==="easy"?["sword"]:null)}</span>`
+        + `<br><span class="stlist">もちもの　${bagHtml(bag, d==="easy"?["herb","sword"]:null)}</span>`
       : `${STAGE_N}もん。${STAGE_PASS}もん いじょう せいかいで<br>コマが 1マス すすむ！`
         + `<br><span class="stlist">` + STARS.map((S,b)=>`<span class="s ${m>>b&1?'on':''}">★</span>${ico(S.item)} <b>${S.name}</b>　${S.cond(LEVELS[i])}`).join("<br>") + `</span>`)
     + (k<A.pos ? `<br><span class="done">（クリアずみ。もういちど あそべるよ）</span>` : "");
@@ -1178,8 +1178,6 @@ function bossHit(ok,el){
     d.className="dmg"; void d.offsetWidth; d.className="dmg show"+(crit?" crit":"");
     mon.className="monster hit";
     if(b.hp<=0) b.over="win";
-  }else if(G.opt.d==="easy"){   // イージー：こうげき なし
-    bossMsg(`おしい！ つぎの もんだいで ${ISLANDS[G.opt.i].boss}を たおそう！`);
   }else if(G.opt.d==="hard"){   // ハード：ミスしたら その ばで まけ
     b.hearts=0; b.justLost=true; b.over="lose"; b.miss=true;
     mon.className="monster atk";
@@ -1256,10 +1254,10 @@ function bossMsg(html){
   };
   step(); msgTimer=setInterval(step,30);
 }
-// アイテム ボタン（イージーは こうげきが ないので つるぎだけ）
+// アイテム ボタン（イージーは じかんぎれの こうげきが ないので たては なし）
 function drawItems(){
   const b=G.boss, left=t=>G.bag[t]-G.used[t];
-  const list = G.opt.d==="easy" ? ["sword"] : ["herb","sword","shield"];
+  const list = G.opt.d==="easy" ? ["herb","sword"] : ["herb","sword","shield"];
   $("bItems").innerHTML=list.map(t=>{
     const on=(t==="sword"&&b.sword)||(t==="shield"&&b.shield);
     const can=!b.over && left(t)>0 && (t==="herb" ? b.hearts<3 : !b[t]);
@@ -1344,7 +1342,7 @@ function finish(){
   else { // boss
     const i=G.opt.i, I=ISLANDS[i], win=G.boss.over==="win", k=idx(i,STEPS-1), last=i===ISLANDS.length-1;
     const d=G.opt.d, ids=[]; let moved=false, unlocked=false;
-    const nodmg = win && d!=="easy" && G.boss.hearts===3;
+    const nodmg = win && G.boss.hearts===3;
     if(win){
       ids.push(`B${i}`);
       if(nodmg) ids.push("nodmg");
@@ -1360,7 +1358,7 @@ function finish(){
     newB=awardBadges(ids,G.correct);
     title=`ボス：${I.boss}`+dtag(d); art=monsterSVG(I.type,I.color); artCls=win?"beaten":"";
     big = win ? "やっつけた！" : "まけちゃった…";
-    if(d!=="easy") tm += `　のこりの ハート <span class="hrt">${"♥".repeat(Math.max(0,G.boss.hearts))}</span>`;
+    tm += `　のこりの ハート <span class="hrt">${"♥".repeat(Math.max(0,G.boss.hearts))}</span>`;
     if(win){
       banner = unlocked ? "★ ハードモードが あそべるように なった！ ★" : nodmg ? "★ ノーダメージ！ ★" : "";
       msg = last ? "ぜんぶの しまを クリア！ きみは でんせつの ゆうしゃだ！"
